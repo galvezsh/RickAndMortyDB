@@ -63,6 +63,9 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+    // Material 3 icons
+    implementation(libs.androidx.material)
+
     // Retrofit and Json-converter
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
