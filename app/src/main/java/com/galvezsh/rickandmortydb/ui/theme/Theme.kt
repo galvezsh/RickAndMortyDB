@@ -10,31 +10,55 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
-private val DarkColorScheme = darkColorScheme(
-    primary = primaryAppColor,
-    secondary = secondaryAppColor,
-    tertiary = tertiaryAppColor,
-    background = backgroundDarkColor,
-    surface = buttonDarkColor
-)
-
 private val LightColorScheme = lightColorScheme(
-    primary = primaryAppColor,
-    secondary = secondaryAppColor,
-    tertiary = tertiaryAppColor,
-    background = backgroundLightColor,
-    surface = buttonLightColor
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    primary = Latte300, // Fondo de items del paging
+    onPrimary = LatteTextPrimaryLight, // texto de los items
+    secondary = Latte500Light,
+    onSecondary = LatteTextSecondaryLight,
+    background = Latte200,
+    onBackground = Latte300,
+    surface = LatteTextSecondaryLight,
+    surfaceVariant = RustyOrange,
 )
+
+private val DarkColorScheme = darkColorScheme(
+    primary = Latte700, // Fondo de items del paging
+    onPrimary = LatteTextPrimaryDark, // texto de los items
+    secondary = Latte500Dark,
+    onSecondary = LatteTextSecondaryDark,
+    background = Latte800,
+    onBackground = Latte700,
+    surface = LatteTextSecondaryDark,
+    surfaceVariant = RustyOrange,
+)
+
+//// ✅ Light ColorScheme
+//val LightColorScheme = lightColorScheme(
+//    primary = Latte500Light,
+//    onPrimary = Color.White,
+//    secondary = Latte300,
+//    onSecondary = LatteTextPrimaryLight,
+//    background = Latte50,
+//    onBackground = LatteTextPrimaryLight,
+//    surface = Latte100,
+//    onSurface = LatteTextPrimaryLight,
+//    surfaceVariant = Latte200,
+//    onSurfaceVariant = LatteTextSecondaryLight
+//)
+
+//// 🌙 Dark ColorScheme
+//val DarkColorScheme = darkColorScheme(
+//    primary = Latte600,
+//    onPrimary = Color.Black,
+//    secondary = Latte700,
+//    onSecondary = LatteTextPrimaryDark,
+//    background = Latte900,
+//    onBackground = LatteTextPrimaryDark,
+//    surface = Latte800,
+//    onSurface = LatteTextPrimaryDark,
+//    surfaceVariant = Latte700,
+//    onSurfaceVariant = LatteTextSecondaryDark
+//)
 
 @Composable
 fun RickAndMortyDBTheme(

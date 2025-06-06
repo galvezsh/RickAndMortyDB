@@ -1,8 +1,9 @@
-package com.galvezsh.rickandmortydb.presentation.settingsScreen
+package com.galvezsh.rickandmortydb.presentation
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -20,22 +21,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.galvezsh.rickandmortydb.R
-import com.galvezsh.rickandmortydb.presentation.ShowSpacer
 
 @Composable
-fun SettingsScreen( viewModel: SettingsViewModel = hiltViewModel() ) {
-    Header()
+fun ShowSpacer( dp: Dp ) {
+    Spacer( modifier = Modifier.padding(dp) )
 }
 
-@Preview( showBackground = true, showSystemUi = true )
 @Composable
-fun Header() {
-    Box( modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp) ) {
+fun ShowHeader( text: String, onPressedSearch: () -> Unit, onPressedFilter: () -> Unit ) {
+    Box( modifier = Modifier.fillMaxSize().padding( horizontal = 24.dp ) ) {
         Column {
             Box(
                 modifier = Modifier
@@ -43,7 +41,7 @@ fun Header() {
                     .padding(top = 10.dp)
             ) {
                 Text(
-                    text = stringResource( R.string.settings ).uppercase(),
+                    text = text,
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
                     modifier = Modifier.align( Alignment.Center ),
@@ -54,25 +52,25 @@ fun Header() {
                     modifier = Modifier.align( Alignment.CenterEnd ),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton( onClick = {  }, modifier = Modifier.size( 32.dp ) ) {
+                    IconButton( onClick = { onPressedSearch }, modifier = Modifier.size( 32.dp ) ) {
                         Icon(
                             imageVector = Icons.Rounded.Search,
-                            contentDescription = "Icono 1",
+                            contentDescription = stringResource( R.string.icon_search ),
                             tint = MaterialTheme.colorScheme.surface
                         )
                     }
                     ShowSpacer( 2.dp )
-                    IconButton( onClick = {  }, modifier = Modifier.size( 32.dp ) ) {
+                    IconButton( onClick = { onPressedFilter }, modifier = Modifier.size( 32.dp ) ) {
                         Icon(
                             imageVector = Icons.Rounded.FilterAlt,
-                            contentDescription = "Icono 2",
+                            contentDescription = stringResource( R.string.icon_filter ),
                             tint = MaterialTheme.colorScheme.surface
                         )
                     }
                 }
             }
 
-            HorizontalDivider(thickness = 2.dp, color = MaterialTheme.colorScheme.surface, modifier = Modifier.padding( top = 10.dp ))
+            HorizontalDivider( thickness = 2.dp, color = MaterialTheme.colorScheme.surface, modifier = Modifier.padding( top = 10.dp ) )
         }
     }
 }

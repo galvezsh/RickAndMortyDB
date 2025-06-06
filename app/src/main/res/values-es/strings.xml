@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Rick y Morty BD</string>
+
+    <string name="characters">Personajes</string>
+    <string name="episodes">Episodios</string>
+    <string name="locations">Lugares</string>
+    <string name="settings">Ajustes</string>
+
+    <string name="icon_search">Buscar</string>
+    <string name="icon_filter">Filtrar</string>
+</resources>
