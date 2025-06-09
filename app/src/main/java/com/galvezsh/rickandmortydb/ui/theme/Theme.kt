@@ -11,59 +11,34 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
 private val LightColorScheme = lightColorScheme(
-    primary = Latte300, // Fondo de items del paging
-    onPrimary = LatteTextPrimaryLight, // texto de los items
+    primary = Latte300, // background color for paging items
+    onPrimary = LatteTextPrimaryLight, // text color for paging items
+    primaryContainer = PortalGreen,
+    onPrimaryContainer = DeadGreen,
     secondary = Latte500Light,
     onSecondary = LatteTextSecondaryLight,
     background = Latte200,
     onBackground = Latte300,
     surface = LatteTextSecondaryLight,
-    surfaceVariant = RustyOrange,
+    surfaceVariant = RustyOrange
 )
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Latte700, // Fondo de items del paging
-    onPrimary = LatteTextPrimaryDark, // texto de los items
+    primary = Latte700,
+    onPrimary = LatteTextPrimaryDark,
+    primaryContainer = PortalGreen,
+    onPrimaryContainer = DeadGreen,
     secondary = Latte500Dark,
     onSecondary = LatteTextSecondaryDark,
     background = Latte800,
     onBackground = Latte700,
     surface = LatteTextSecondaryDark,
-    surfaceVariant = RustyOrange,
+    surfaceVariant = RustyOrange
 )
-
-//// ✅ Light ColorScheme
-//val LightColorScheme = lightColorScheme(
-//    primary = Latte500Light,
-//    onPrimary = Color.White,
-//    secondary = Latte300,
-//    onSecondary = LatteTextPrimaryLight,
-//    background = Latte50,
-//    onBackground = LatteTextPrimaryLight,
-//    surface = Latte100,
-//    onSurface = LatteTextPrimaryLight,
-//    surfaceVariant = Latte200,
-//    onSurfaceVariant = LatteTextSecondaryLight
-//)
-
-//// 🌙 Dark ColorScheme
-//val DarkColorScheme = darkColorScheme(
-//    primary = Latte600,
-//    onPrimary = Color.Black,
-//    secondary = Latte700,
-//    onSecondary = LatteTextPrimaryDark,
-//    background = Latte900,
-//    onBackground = LatteTextPrimaryDark,
-//    surface = Latte800,
-//    onSurface = LatteTextPrimaryDark,
-//    surfaceVariant = Latte700,
-//    onSurfaceVariant = LatteTextSecondaryDark
-//)
 
 @Composable
 fun RickAndMortyDBTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {

@@ -27,8 +27,8 @@ navigationCompose = "2.9.0"
 kotlinxSerialization = "1.7.3"
 
 google-services = "4.4.2"
-firebaseBom = "33.14.0"
-crashlytics-gradle = "3.0.3"
+firebaseBom = "33.15.0"
+crashlytics-gradle = "3.0.4"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }

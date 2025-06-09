@@ -1,6 +1,5 @@
 package com.galvezsh.rickandmortydb.core.navigation
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -23,9 +22,11 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -41,8 +42,35 @@ fun NavigationWrapper() {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
-    val borderColor = MaterialTheme.colorScheme.surface
 
+    Scaffold( bottomBar = { BottomNavigationBar( navController, currentDestination ) } ) { innerPadding ->
+        NavHost(
+            navController = navController,
+            startDestination = CharactersScreen,
+            modifier = Modifier.padding( innerPadding )
+        ) {
+            composable<CharactersScreen> {
+                CharactersScreen()
+            }
+
+            composable<EpisodesScreen> {
+                EpisodesScreen()
+            }
+
+            composable<LocationsScreen> {
+                LocationsScreen()
+            }
+
+            composable<SettingsScreen> {
+                SettingsScreen()
+            }
+        }
+    }
+}
+
+@Composable
+fun BottomNavigationBar( navController: NavHostController, currentDestination: NavDestination? ) {
+    val borderColor = MaterialTheme.colorScheme.surface
     val navigationBottomRoutes = listOf(
         NavigationBottomRoute( Icons.Rounded.Person , stringResource( R.string.characters ), CharactersScreen ),
         NavigationBottomRoute( Icons.Rounded.FormatListNumbered , stringResource( R.string.episodes ), EpisodesScreen ),
@@ -50,53 +78,38 @@ fun NavigationWrapper() {
         NavigationBottomRoute( Icons.Rounded.Settings , stringResource( R.string.settings ), SettingsScreen )
     )
 
-    Scaffold(
-        bottomBar = {
-            NavigationBar(
-                containerColor = MaterialTheme.colorScheme.background,
-                modifier = Modifier.navigationBarsPadding().drawBehind {
-                    val strokeWidth = 5.dp.toPx()
-                    drawLine(
-                        color = borderColor,
-                        start = Offset(0f, 0f),
-                        end = Offset(size.width, 0f),
-                        strokeWidth = strokeWidth
-                    )
-                }
-            ) {
-                navigationBottomRoutes.forEach { item ->
-                    NavigationBarItem(
-                        icon = { Icon( item.icon, contentDescription = item.name ) },
-                        label = { Text( item.name ) },
-                        selected = currentDestination?.hierarchy?.any { it.hasRoute( item.route::class ) } == true,
-                        colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = MaterialTheme.colorScheme.surfaceVariant,
-                            unselectedIconColor = MaterialTheme.colorScheme.surface,
-                            selectedTextColor = MaterialTheme.colorScheme.surfaceVariant,
-                            unselectedTextColor = MaterialTheme.colorScheme.surface,
-                            indicatorColor = Color.Transparent
-                        ),
-                        onClick = {
-                            navController.navigate( item.route ) {
-                                popUpTo( navController.graph.findStartDestination().id ) { saveState = true }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        }
-                    )
-                }
-            }
+    NavigationBar(
+        containerColor = MaterialTheme.colorScheme.background,
+        modifier = Modifier.navigationBarsPadding().drawBehind {
+            val strokeWidth = 5.dp.toPx()
+            drawLine(
+                color = borderColor,
+                start = Offset(0f, 0f),
+                end = Offset(size.width, 0f),
+                strokeWidth = strokeWidth
+            )
         }
-    ) { innerPadding ->
-        NavHost(
-            navController = navController,
-            startDestination = CharactersScreen,
-            modifier = Modifier.padding( innerPadding )
-        ) {
-            composable<CharactersScreen> { CharactersScreen() }
-            composable<EpisodesScreen> { EpisodesScreen() }
-            composable<LocationsScreen> { LocationsScreen() }
-            composable<SettingsScreen> { SettingsScreen() }
+    ) {
+        navigationBottomRoutes.forEach { item ->
+            NavigationBarItem(
+                icon = { Icon( item.icon, contentDescription = item.name ) },
+                label = { Text( item.name ) },
+                selected = currentDestination?.hierarchy?.any { it.hasRoute( item.route::class ) } == true,
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = MaterialTheme.colorScheme.surfaceVariant,
+                    unselectedIconColor = MaterialTheme.colorScheme.surface,
+                    selectedTextColor = MaterialTheme.colorScheme.surfaceVariant,
+                    unselectedTextColor = MaterialTheme.colorScheme.surface,
+                    indicatorColor = Color.Transparent
+                ),
+                onClick = {
+                    navController.navigate( item.route ) {
+                        popUpTo( navController.graph.findStartDestination().id ) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
+            )
         }
     }
 }

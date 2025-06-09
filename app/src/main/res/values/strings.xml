@@ -8,4 +8,6 @@
 
     <string name="icon_search">Search</string>
     <string name="icon_filter">Filter</string>
+
+    <string name="not_implemented">Not implemented yet</string>
 </resources>

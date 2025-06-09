@@ -9,4 +9,6 @@
 
     <string name="icon_search">Buscar</string>
     <string name="icon_filter">Filtrar</string>
+
+    <string name="not_implemented">No implementado aún</string>
 </resources>

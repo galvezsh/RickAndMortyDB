@@ -1,17 +1,14 @@
 package com.galvezsh.rickandmortydb.presentation
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.FilterAlt
 import androidx.compose.material.icons.rounded.Search
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -33,44 +30,34 @@ fun ShowSpacer( dp: Dp ) {
 
 @Composable
 fun ShowHeader( text: String, onPressedSearch: () -> Unit, onPressedFilter: () -> Unit ) {
-    Box( modifier = Modifier.fillMaxSize().padding( horizontal = 24.dp ) ) {
-        Column {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 10.dp)
-            ) {
-                Text(
-                    text = text,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
-                    modifier = Modifier.align( Alignment.Center ),
-                    color = MaterialTheme.colorScheme.surface
+    Box( modifier = Modifier.fillMaxWidth() ) {
+        Text(
+            text = text,
+            fontWeight = FontWeight.Bold,
+            fontSize = 16.sp,
+            modifier = Modifier.align( Alignment.Center ),
+            color = MaterialTheme.colorScheme.surface
+        )
+
+        Row(
+            modifier = Modifier.align( Alignment.CenterEnd ),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton( onClick = { onPressedSearch }, modifier = Modifier.size( 32.dp ) ) {
+                Icon(
+                    imageVector = Icons.Rounded.Search,
+                    contentDescription = stringResource( R.string.icon_search ),
+                    tint = MaterialTheme.colorScheme.surface
                 )
-
-                Row(
-                    modifier = Modifier.align( Alignment.CenterEnd ),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    IconButton( onClick = { onPressedSearch }, modifier = Modifier.size( 32.dp ) ) {
-                        Icon(
-                            imageVector = Icons.Rounded.Search,
-                            contentDescription = stringResource( R.string.icon_search ),
-                            tint = MaterialTheme.colorScheme.surface
-                        )
-                    }
-                    ShowSpacer( 2.dp )
-                    IconButton( onClick = { onPressedFilter }, modifier = Modifier.size( 32.dp ) ) {
-                        Icon(
-                            imageVector = Icons.Rounded.FilterAlt,
-                            contentDescription = stringResource( R.string.icon_filter ),
-                            tint = MaterialTheme.colorScheme.surface
-                        )
-                    }
-                }
             }
-
-            HorizontalDivider( thickness = 2.dp, color = MaterialTheme.colorScheme.surface, modifier = Modifier.padding( top = 10.dp ) )
+            ShowSpacer( 2.dp )
+            IconButton( onClick = { onPressedFilter }, modifier = Modifier.size( 32.dp ) ) {
+                Icon(
+                    imageVector = Icons.Rounded.FilterAlt,
+                    contentDescription = stringResource( R.string.icon_filter ),
+                    tint = MaterialTheme.colorScheme.surface
+                )
+            }
         }
     }
 }
