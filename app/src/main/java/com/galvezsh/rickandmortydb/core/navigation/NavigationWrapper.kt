@@ -81,12 +81,11 @@ fun BottomNavigationBar( navController: NavHostController, currentDestination: N
     NavigationBar(
         containerColor = MaterialTheme.colorScheme.background,
         modifier = Modifier.navigationBarsPadding().drawBehind {
-            val strokeWidth = 5.dp.toPx()
             drawLine(
                 color = borderColor,
                 start = Offset(0f, 0f),
                 end = Offset(size.width, 0f),
-                strokeWidth = strokeWidth
+                strokeWidth = 5.dp.toPx()
             )
         }
     ) {

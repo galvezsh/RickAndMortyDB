@@ -49,5 +49,4 @@ fun SettingsHeader( modifier: Modifier ) {
         color = MaterialTheme.colorScheme.surface,
         modifier = Modifier.padding( top = 14.dp )
     )
-    ShowSpacer( 12.dp )
 }

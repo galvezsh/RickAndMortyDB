@@ -1,13 +1,39 @@
 <resources>
     <string name="app_name">Rick and Morty DB</string>
 
+    <string name="not_implemented">Not implemented yet</string>
+
+    <!--  Bottom Navigation Bar and Titles -->
     <string name="characters">Characters</string>
     <string name="episodes">Episodes</string>
     <string name="locations">Locations</string>
     <string name="settings">Settings</string>
 
+    <string name="search_character">Search por a custom character</string>
+    <string name="search_episode">Search por a custom episode</string>
+    <string name="search_location">Search por a custom location</string>
+
     <string name="icon_search">Search</string>
     <string name="icon_filter">Filter</string>
 
-    <string name="not_implemented">Not implemented yet</string>
+    <string name="of">of</string>
+
+    <!--  FilterBox  -->
+    <string name="filterbox_label">Filter search</string>
+
+    <string name="filterbox_character_all">All</string>
+    <string name="filterbox_character_male">Male</string>
+    <string name="filterbox_character_female">Female</string>
+    <string name="filterbox_character_genderless">Genderless</string>
+    <string name="filterbox_character_unknown">Unknown</string>
+    <string name="filterbox_character_alive">Alive</string>
+    <string name="filterbox_character_dead">Dead</string>
+
+    <!--  Items characters paging  -->
+    <string name="character_species">Species</string>
+    <string name="character_gender">Gender</string>
+    <string name="character_status">Status</string>
+
+    <!--  Character  -->
+    <string name="character_image_content">Character image</string>
 </resources>

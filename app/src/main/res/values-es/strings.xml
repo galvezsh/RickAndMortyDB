@@ -2,13 +2,39 @@
 <resources>
     <string name="app_name">Rick y Morty BD</string>
 
+    <string name="not_implemented">No implementado aún</string>
+
+    <!--  Bottom Navigation Bar and Titles -->
     <string name="characters">Personajes</string>
     <string name="episodes">Episodios</string>
     <string name="locations">Lugares</string>
     <string name="settings">Ajustes</string>
 
+    <string name="search_character">Busque por un personaje concreto</string>
+    <string name="search_episode">Busque por un episodio concreto</string>
+    <string name="search_location">Busque por un lugar concreto</string>
+
     <string name="icon_search">Buscar</string>
     <string name="icon_filter">Filtrar</string>
 
-    <string name="not_implemented">No implementado aún</string>
+    <string name="of">de</string>
+
+    <!--  FilterBox  -->
+    <string name="filterbox_label">Filtrar busqueda</string>
+
+    <string name="filterbox_character_all">Todos</string>
+    <string name="filterbox_character_male">Masculino</string>
+    <string name="filterbox_character_female">Femenino</string>
+    <string name="filterbox_character_genderless">Sin género</string>
+    <string name="filterbox_character_unknown">Desconocido</string>
+    <string name="filterbox_character_alive">Vivo</string>
+    <string name="filterbox_character_dead">Muerto</string>
+
+    <!--  Items characters paging  -->
+    <string name="character_species">Especie</string>
+    <string name="character_gender">Género</string>
+    <string name="character_status">Estado</string>
+
+    <!--  Character  -->
+    <string name="character_image_content">Imagen del personaje</string>
 </resources>
