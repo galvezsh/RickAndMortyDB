@@ -33,6 +33,7 @@
     <string name="character_species">Species</string>
     <string name="character_gender">Gender</string>
     <string name="character_status">Status</string>
+    <string name="navigate_to_detail_character">Navigate to detail character screen</string>
 
     <!--  Character  -->
     <string name="character_image_content">Character image</string>

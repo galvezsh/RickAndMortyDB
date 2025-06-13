@@ -1,4 +1,4 @@
-package com.galvezsh.rickandmortydb.ui.theme
+package com.galvezsh.rickandmortydb.core.ui
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

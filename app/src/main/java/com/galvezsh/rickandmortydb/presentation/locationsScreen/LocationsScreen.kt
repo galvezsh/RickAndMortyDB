@@ -32,11 +32,6 @@ fun LocationsScreen( viewModel: LocationsViewModel = hiltViewModel() ) {
     Box( modifier = Modifier.fillMaxSize().padding( horizontal = 24.dp ).padding( top = 10.dp ) ) {
         Column {
             Header( viewModel )
-            HorizontalDivider(
-                thickness = 2.dp,
-                color = MaterialTheme.colorScheme.surface,
-                modifier = Modifier.padding( top = 10.dp )
-            )
             Box( modifier = Modifier.fillMaxSize() ) {
                 Text(
                     text = stringResource( R.string.not_implemented ),
@@ -75,4 +70,10 @@ private fun Header( viewModel: LocationsViewModel ) {
             onTextChanged = { viewModel.onSearchFieldChanged(it) }
         )
     }
+
+    HorizontalDivider(
+        thickness = 2.dp,
+        color = MaterialTheme.colorScheme.surface,
+        modifier = Modifier.padding( top = 10.dp )
+    )
 }

@@ -37,8 +37,16 @@ import com.galvezsh.rickandmortydb.presentation.episodesScreen.EpisodesScreen
 import com.galvezsh.rickandmortydb.presentation.locationsScreen.LocationsScreen
 import com.galvezsh.rickandmortydb.presentation.settingsScreen.SettingsScreen
 
+// Everything starts here, with the definition of the navigation.
+
+/**
+ * This composable is the responsible one to create the BottomNavigationBar for all the 4 Screens
+ * and permit the navigation between each-one. After that, initialize the first screen, the
+ * characters screen
+ */
 @Composable
 fun NavigationWrapper() {
+
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
@@ -46,7 +54,7 @@ fun NavigationWrapper() {
     Scaffold( bottomBar = { BottomNavigationBar( navController, currentDestination ) } ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = CharactersScreen,
+            startDestination = CharactersScreen, // <- here is the first screen to render
             modifier = Modifier.padding( innerPadding )
         ) {
             composable<CharactersScreen> {
@@ -68,9 +76,19 @@ fun NavigationWrapper() {
     }
 }
 
+/**
+ * This function build the bottom navigation bar with 4 buttons; characters, episodes, locations and settings,
+ * where each button navigate to is own screen
+ *
+ * @param navController The navigation controller that allows the navigation between screens
+ * @param currentDestination The current position when the app starts
+ */
 @Composable
 fun BottomNavigationBar( navController: NavHostController, currentDestination: NavDestination? ) {
+
     val borderColor = MaterialTheme.colorScheme.surface
+    // This is the list of the routes for the physical buttons in the bar when i describes the icon for the button,
+    // the bottom text of the button and the route that takes when the user press this button
     val navigationBottomRoutes = listOf(
         NavigationBottomRoute( Icons.Rounded.Person , stringResource( R.string.characters ), CharactersScreen ),
         NavigationBottomRoute( Icons.Rounded.FormatListNumbered , stringResource( R.string.episodes ), EpisodesScreen ),
@@ -89,6 +107,7 @@ fun BottomNavigationBar( navController: NavHostController, currentDestination: N
             )
         }
     ) {
+        // And this is where you go through the list to build each button
         navigationBottomRoutes.forEach { item ->
             NavigationBarItem(
                 icon = { Icon( item.icon, contentDescription = item.name ) },

@@ -29,80 +29,113 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.LoadState
+import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
 import com.galvezsh.rickandmortydb.R
+import com.galvezsh.rickandmortydb.domain.model.CharacterModel
+import com.galvezsh.rickandmortydb.presentation.ShowCircularProgressBar
+import com.galvezsh.rickandmortydb.presentation.ShowErrorBox
+import com.galvezsh.rickandmortydb.presentation.ShowErrorBoxWithButton
 import com.galvezsh.rickandmortydb.presentation.ShowHeader
 import com.galvezsh.rickandmortydb.presentation.ShowSearchField
 import com.galvezsh.rickandmortydb.presentation.ShowSpacer
-import com.galvezsh.rickandmortydb.presentation.model.CharacterLocationModel
-import com.galvezsh.rickandmortydb.presentation.model.CharacterModel
+import com.galvezsh.rickandmortydb.presentation.ShowToast
 
 @Composable
 fun CharactersScreen( viewModel: CharactersViewModel = hiltViewModel() ) {
+
+    val characters = viewModel.characters.collectAsLazyPagingItems()
     var visibilityFF by remember { mutableStateOf( false ) }
-    val character = CharacterModel(
-        id = 1,
-        name = "Morty Smith",
-        isAlive = true,
-        species = "Humano",
-        type = "",
-        gender = "Masculino",
-        origin = CharacterLocationModel("", ""),
-        location = CharacterLocationModel("", ""),
-        image = "https://rickandmortyapi.com/api/character/avatar/2.jpeg",
-        episodes = emptyList<String>()
-    )
+    val numberOfCharacters = characters.itemCount
+
+    // With launchedEffect, the internal code will only be executed when the value passed as a
+    // parameter changes, optimizing the code since it avoids having to execute this code for
+    // each recomposition of this screen.
+    LaunchedEffect( numberOfCharacters ) {
+        viewModel.onFromChanged( numberOfCharacters )
+    }
 
     Box( modifier = Modifier.fillMaxSize() ) {
-
         Column( modifier = Modifier.padding( horizontal = 24.dp ).padding( top = 10.dp ) ) {
-            Header( viewModel = viewModel, onPressedFilterButton = { visibilityFF = !visibilityFF } )
-            HorizontalDivider(
-                thickness = 2.dp,
-                color = MaterialTheme.colorScheme.surface,
-                modifier = Modifier.padding( top = 10.dp )
+
+            Header(
+                viewModel = viewModel,
+                onPressedFilterButton = { visibilityFF = !visibilityFF }
             )
-            LazyColumn( contentPadding = PaddingValues( bottom = 16.dp )) {
-                items( 10 ) {
-                    ItemList( character = character, onPressedItemList = { characterID -> /** Make the navigation to detailCharacterScreen */ } )
+
+            LazyColumn( contentPadding = PaddingValues( bottom = 16.dp ) ) {
+                items( numberOfCharacters ) { index ->
+
+                    // Checking if the character in the index position is NOT null, for safety
+                    characters[index]?.let { character ->
+                        ItemList(
+                            character = character,
+                            onPressedItemList = { characterID ->
+                                /** Navegación a detalle */
+                            }
+                        )
+                    }
                 }
             }
         }
 
+        when {
+            characters.loadState.refresh is LoadState.NotLoading && numberOfCharacters == 0 -> {
+                Box( modifier = Modifier.align( Alignment.Center ) ) {
+                    ShowErrorBox( "No hay datos" )
+                }
+            }
+
+            characters.loadState.hasError -> {
+                ShowErrorBoxWithButton(
+                    text = "Se ha producido un error inesperado, intentelo de nuevo o pruebe mas tarde",
+                    textButton = "Reintentar",
+                    onPressedButton = { characters.retry() }
+                )
+            }
+
+            characters.loadState.refresh is LoadState.Loading && numberOfCharacters == 0 ||
+                    characters.loadState.append is LoadState.Loading -> {
+                ShowCircularProgressBar()
+            }
+        }
+
+        // Animation for the FilterBox when is own button is pressed
         AnimatedVisibility(
             visible = visibilityFF,
-            enter = slideInVertically( initialOffsetY = { 160 } ) + fadeIn(),
-            exit = slideOutVertically( targetOffsetY = { 160 } ) + fadeOut(),
-            modifier = Modifier.align( Alignment.BottomCenter )
+            enter = slideInVertically( initialOffsetY = { 160 }) + fadeIn(),
+            exit = slideOutVertically( targetOffsetY = { 160 }) + fadeOut(),
+            modifier = Modifier.align(Alignment.BottomCenter)
         ) {
-            FilterBox(
-                onGenderChanged = { viewModel.onGenderFilterChanged( it ) },
-                onStatusChanged = { viewModel.onStatusFilterChanged( it )  }
-            )
+            FilterBox( viewModel = viewModel )
         }
     }
 }
 
 @Composable
 private fun Header( viewModel: CharactersViewModel, onPressedFilterButton: () -> Unit ) {
+
     val from by viewModel.from.collectAsState()
     val to by viewModel.to.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
@@ -118,8 +151,8 @@ private fun Header( viewModel: CharactersViewModel, onPressedFilterButton: () ->
 
     AnimatedVisibility(
         visible = visibilitySF,
-        enter = slideInVertically( initialOffsetY = { -40 } ) + fadeIn(),
-        exit = slideOutVertically( targetOffsetY = { -40 } ) + fadeOut()
+        enter = slideInVertically(initialOffsetY = { -40 }) + fadeIn(),
+        exit = slideOutVertically(targetOffsetY = { -40 }) + fadeOut()
     ) {
         ShowSearchField(
             text = searchQuery,
@@ -127,12 +160,18 @@ private fun Header( viewModel: CharactersViewModel, onPressedFilterButton: () ->
             onTextChanged = { viewModel.onSearchFieldChanged( it ) }
         )
     }
+
+    HorizontalDivider(
+        thickness = 2.dp,
+        color = MaterialTheme.colorScheme.surface,
+        modifier = Modifier.padding( top = 10.dp )
+    )
 }
 
 @Composable
-private fun FilterBox( onGenderChanged: (String) -> Unit, onStatusChanged: (String) -> Unit ) {
-    var selectedIndexGender by rememberSaveable { mutableIntStateOf( 0 ) }
-    var selectedIndexStatus by rememberSaveable { mutableIntStateOf( 0 ) }
+private fun FilterBox( viewModel: CharactersViewModel ) {
+    val selectedIndexGender = viewModel.genderIndex.collectAsState()
+    val selectedIndexStatus = viewModel.statusIndex.collectAsState()
     val genderListText = listOf<String>(
         stringResource( R.string.filterbox_character_all ),
         stringResource( R.string.filterbox_character_male ),
@@ -143,10 +182,11 @@ private fun FilterBox( onGenderChanged: (String) -> Unit, onStatusChanged: (Stri
     val statusListText = listOf<String>(
         stringResource( R.string.filterbox_character_all ),
         stringResource( R.string.filterbox_character_alive ),
-        stringResource( R.string.filterbox_character_dead )
+        stringResource( R.string.filterbox_character_dead ),
+        stringResource( R.string.filterbox_character_unknown ),
     )
     val genderListData = listOf<String>( "", "male", "female", "genderless", "unknown" )
-    val statusListData = listOf<String>( "", "alive", "dead" )
+    val statusListData = listOf<String>( "", "alive", "dead", "unknown" )
 
     Column {
         HorizontalDivider( thickness = 2.dp, color = MaterialTheme.colorScheme.surface )
@@ -176,13 +216,10 @@ private fun FilterBox( onGenderChanged: (String) -> Unit, onStatusChanged: (Stri
 
             FlowRow( modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy( 8.dp ) ) {
                 repeat( genderListText.size ) { index ->
-                    val isSelected = ( index == selectedIndexGender )
+                    val isSelected = ( index == selectedIndexGender.value )
 
                     Button(
-                        onClick = {
-                            selectedIndexGender = index
-                            onGenderChanged( genderListData[ index ] )
-                        },
+                        onClick = { viewModel.onGenderFilterChanged( newGender = genderListData[ index ], index ) },
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape( 4.dp ),
                         colors = ButtonDefaults.buttonColors(
@@ -206,13 +243,10 @@ private fun FilterBox( onGenderChanged: (String) -> Unit, onStatusChanged: (Stri
 
             FlowRow( modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy( 8.dp ) ) {
                 repeat( statusListText.size ) { index ->
-                    val isSelected = ( index == selectedIndexStatus )
+                    val isSelected = ( index == selectedIndexStatus.value )
 
                     Button(
-                        onClick = {
-                            selectedIndexStatus = index
-                            onStatusChanged( statusListData[ index ] )
-                        },
+                        onClick = { viewModel.onStatusFilterChanged( statusListData[ index ], index ) },
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape( 4.dp ),
                         colors = ButtonDefaults.buttonColors(
@@ -249,6 +283,8 @@ private fun ItemList( character: CharacterModel, onPressedItemList: (Int) -> Uni
             Column( modifier = Modifier.fillMaxHeight().weight( 1f ), verticalArrangement = Arrangement.SpaceBetween ) {
                 Text(
                     text = character.name,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onPrimary
@@ -263,6 +299,8 @@ private fun ItemList( character: CharacterModel, onPressedItemList: (Int) -> Uni
                     )
                     Text(
                         text = character.species,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                         fontSize = 14.sp,
                         color = MaterialTheme.colorScheme.onSecondary
                     )
@@ -277,6 +315,8 @@ private fun ItemList( character: CharacterModel, onPressedItemList: (Int) -> Uni
                     )
                     Text(
                         text = character.gender,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                         fontSize = 14.sp,
                         color = MaterialTheme.colorScheme.onSecondary
                     )
@@ -290,9 +330,9 @@ private fun ItemList( character: CharacterModel, onPressedItemList: (Int) -> Uni
                         color = MaterialTheme.colorScheme.onSecondary
                     )
                     Text(
-                        text =
-                            if ( character.isAlive ) stringResource( R.string.filterbox_character_alive )
-                            else stringResource( R.string.filterbox_character_dead ),
+                        text = character.isAlive,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                         fontSize = 14.sp,
                         color = MaterialTheme.colorScheme.onSecondary
                     )
@@ -301,7 +341,7 @@ private fun ItemList( character: CharacterModel, onPressedItemList: (Int) -> Uni
 
             Icon(
                 imageVector = Icons.AutoMirrored.Default.ArrowForward,
-                contentDescription = "",
+                contentDescription = stringResource( R.string.navigate_to_detail_character ),
                 tint = MaterialTheme.colorScheme.onPrimary
             )
         }

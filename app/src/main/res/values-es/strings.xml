@@ -34,6 +34,7 @@
     <string name="character_species">Especie</string>
     <string name="character_gender">Género</string>
     <string name="character_status">Estado</string>
+    <string name="navigate_to_detail_character">Navegar a la pantalla detallada del personaje</string>
 
     <!--  Character  -->
     <string name="character_image_content">Imagen del personaje</string>

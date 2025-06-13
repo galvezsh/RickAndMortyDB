@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -32,11 +33,6 @@ fun EpisodesScreen( viewModel: EpisodesViewModel = hiltViewModel() ) {
     Box( modifier = Modifier.fillMaxSize().padding( horizontal = 24.dp ).padding( top = 10.dp ) ) {
         Column {
             Header( viewModel )
-            HorizontalDivider(
-                thickness = 2.dp,
-                color = MaterialTheme.colorScheme.surface,
-                modifier = Modifier.padding( top = 10.dp )
-            )
             Box( modifier = Modifier.fillMaxSize() ) {
                 Text(
                     text = stringResource( R.string.not_implemented ),
@@ -47,6 +43,8 @@ fun EpisodesScreen( viewModel: EpisodesViewModel = hiltViewModel() ) {
             }
         }
     }
+
+    Scaffold {  }
 }
 
 @Composable
@@ -75,4 +73,10 @@ private fun Header( viewModel: EpisodesViewModel ) {
             onTextChanged = { viewModel.onSearchFieldChanged(it) }
         )
     }
+
+    HorizontalDivider(
+        thickness = 2.dp,
+        color = MaterialTheme.colorScheme.surface,
+        modifier = Modifier.padding( top = 10.dp )
+    )
 }
