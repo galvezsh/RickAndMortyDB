@@ -37,4 +37,9 @@
 
     <!--  Character  -->
     <string name="character_image_content">Character image</string>
+
+    <!--  Error and such  -->
+    <string name="no_data">No data has been obtained from the server</string>
+    <string name="no_internet">An unexpected error has occurred, please check your internet connection or try again later</string>
+    <string name="retry">Retry</string>
 </resources>

@@ -1,10 +1,5 @@
 package com.galvezsh.rickandmortydb.presentation.charactersScreen
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -15,7 +10,6 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -26,10 +20,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -42,7 +34,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -54,63 +45,65 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
 import com.galvezsh.rickandmortydb.R
 import com.galvezsh.rickandmortydb.domain.model.CharacterModel
+import com.galvezsh.rickandmortydb.presentation.ShowBottomBox
 import com.galvezsh.rickandmortydb.presentation.ShowCircularProgressBar
 import com.galvezsh.rickandmortydb.presentation.ShowErrorBox
 import com.galvezsh.rickandmortydb.presentation.ShowErrorBoxWithButton
 import com.galvezsh.rickandmortydb.presentation.ShowHeader
-import com.galvezsh.rickandmortydb.presentation.ShowSearchField
 import com.galvezsh.rickandmortydb.presentation.ShowSpacer
-import com.galvezsh.rickandmortydb.presentation.ShowToast
 
 @Composable
 fun CharactersScreen( viewModel: CharactersViewModel = hiltViewModel() ) {
 
-    val characters = viewModel.characters.collectAsLazyPagingItems()
+    val from by viewModel.from.collectAsState()
+    val to by viewModel.to.collectAsState()
+    val searchQuery by viewModel.searchQuery.collectAsState()
+    var visibilitySF by remember { mutableStateOf( false ) }
     var visibilityFF by remember { mutableStateOf( false ) }
+
+    val characters = viewModel.characters.collectAsLazyPagingItems()
     val numberOfCharacters = characters.itemCount
 
     // With launchedEffect, the internal code will only be executed when the value passed as a
     // parameter changes, optimizing the code since it avoids having to execute this code for
     // each recomposition of this screen.
-    LaunchedEffect( numberOfCharacters ) {
-        viewModel.onFromChanged( numberOfCharacters )
-    }
+    LaunchedEffect( numberOfCharacters ) { viewModel.onFromChanged( numberOfCharacters ) }
 
-    Box( modifier = Modifier.fillMaxSize() ) {
-        Column( modifier = Modifier.padding( horizontal = 24.dp ).padding( top = 10.dp ) ) {
+    ShowHeader(
+        from = from,
+        to = to,
+        text = stringResource( R.string.characters ).uppercase(),
+        placeholder = stringResource( R.string.search_character ),
+        onPressedSearch = { visibilitySF = !visibilitySF },
+        onPressedFilter = { visibilityFF = !visibilityFF  },
+        visibilitySF = visibilitySF,
+        searchQuery = searchQuery,
+        onSearchFieldChanged = { viewModel.onSearchFieldChanged( it ) }
+    ) {
+        LazyColumn( modifier = Modifier.padding( horizontal = 20.dp ), contentPadding = PaddingValues( bottom = 16.dp ) ) {
+            items( numberOfCharacters ) { index ->
 
-            Header(
-                viewModel = viewModel,
-                onPressedFilterButton = { visibilityFF = !visibilityFF }
-            )
-
-            LazyColumn( contentPadding = PaddingValues( bottom = 16.dp ) ) {
-                items( numberOfCharacters ) { index ->
-
-                    // Checking if the character in the index position is NOT null, for safety
-                    characters[index]?.let { character ->
-                        ItemList(
-                            character = character,
-                            onPressedItemList = { characterID ->
-                                /** Navegación a detalle */
-                            }
-                        )
-                    }
+                // Checking if the character in the index position is NOT null, for safety
+                characters[index]?.let { character ->
+                    ItemList(
+                        character = character,
+                        onPressedItemList = { characterID ->
+                            /** Navigate to detail character */
+                        }
+                    )
                 }
             }
         }
 
         when {
             characters.loadState.refresh is LoadState.NotLoading && numberOfCharacters == 0 -> {
-                Box( modifier = Modifier.align( Alignment.Center ) ) {
-                    ShowErrorBox( "No hay datos" )
-                }
+                ShowErrorBox( stringResource( R.string.no_data ) )
             }
 
             characters.loadState.hasError -> {
                 ShowErrorBoxWithButton(
-                    text = "Se ha producido un error inesperado, intentelo de nuevo o pruebe mas tarde",
-                    textButton = "Reintentar",
+                    text = stringResource( R.string.no_internet ),
+                    textButton = stringResource( R.string.retry ),
                     onPressedButton = { characters.retry() }
                 )
             }
@@ -121,55 +114,12 @@ fun CharactersScreen( viewModel: CharactersViewModel = hiltViewModel() ) {
             }
         }
 
-        // Animation for the FilterBox when is own button is pressed
-        AnimatedVisibility(
-            visible = visibilityFF,
-            enter = slideInVertically( initialOffsetY = { 160 }) + fadeIn(),
-            exit = slideOutVertically( targetOffsetY = { 160 }) + fadeOut(),
-            modifier = Modifier.align(Alignment.BottomCenter)
-        ) {
-            FilterBox( viewModel = viewModel )
-        }
+        FilterBox( viewModel = viewModel, visibility = visibilityFF )
     }
 }
 
 @Composable
-private fun Header( viewModel: CharactersViewModel, onPressedFilterButton: () -> Unit ) {
-
-    val from by viewModel.from.collectAsState()
-    val to by viewModel.to.collectAsState()
-    val searchQuery by viewModel.searchQuery.collectAsState()
-    var visibilitySF by remember { mutableStateOf( false ) }
-
-    ShowHeader(
-        text = stringResource( R.string.characters ).uppercase(),
-        from = from,
-        to = to,
-        onPressedSearch = { visibilitySF = !visibilitySF },
-        onPressedFilter = { onPressedFilterButton() }
-    )
-
-    AnimatedVisibility(
-        visible = visibilitySF,
-        enter = slideInVertically(initialOffsetY = { -40 }) + fadeIn(),
-        exit = slideOutVertically(targetOffsetY = { -40 }) + fadeOut()
-    ) {
-        ShowSearchField(
-            text = searchQuery,
-            placeholder = stringResource( R.string.search_character ),
-            onTextChanged = { viewModel.onSearchFieldChanged( it ) }
-        )
-    }
-
-    HorizontalDivider(
-        thickness = 2.dp,
-        color = MaterialTheme.colorScheme.surface,
-        modifier = Modifier.padding( top = 10.dp )
-    )
-}
-
-@Composable
-private fun FilterBox( viewModel: CharactersViewModel ) {
+private fun FilterBox( viewModel: CharactersViewModel, visibility: Boolean ) {
     val selectedIndexGender = viewModel.genderIndex.collectAsState()
     val selectedIndexStatus = viewModel.statusIndex.collectAsState()
     val genderListText = listOf<String>(
@@ -188,14 +138,9 @@ private fun FilterBox( viewModel: CharactersViewModel ) {
     val genderListData = listOf<String>( "", "male", "female", "genderless", "unknown" )
     val statusListData = listOf<String>( "", "alive", "dead", "unknown" )
 
-    Column {
-        HorizontalDivider( thickness = 2.dp, color = MaterialTheme.colorScheme.surface )
+    ShowBottomBox( visibility = visibility ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .background( MaterialTheme.colorScheme.background )
-                .padding( 8.dp ),
+            modifier = Modifier.fillMaxWidth().wrapContentHeight().padding( 8.dp ),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
@@ -223,7 +168,8 @@ private fun FilterBox( viewModel: CharactersViewModel ) {
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape( 4.dp ),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (isSelected) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surface,
+                            containerColor = if (isSelected) MaterialTheme.colorScheme.surfaceVariant
+                                             else MaterialTheme.colorScheme.surface,
                             contentColor = MaterialTheme.colorScheme.background
                         )
 

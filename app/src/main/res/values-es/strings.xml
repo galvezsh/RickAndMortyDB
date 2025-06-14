@@ -38,4 +38,9 @@
 
     <!--  Character  -->
     <string name="character_image_content">Imagen del personaje</string>
+
+    <!--  Error and such  -->
+    <string name="no_data">No se han obtenido datos del servidor</string>
+    <string name="no_internet">Se ha producido un error inesperado. Compruebe su conexión a internet o intentelo de nuevo más tarde</string>
+    <string name="retry">Reintentar</string>
 </resources>
