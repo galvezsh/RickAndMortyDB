@@ -43,7 +43,7 @@ class CharactersViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-             getCountOfCharactersFlow { newTo -> _to.value = newTo }
+             getCountOfCharactersFlow().collect { _to.value = it }
         }
     }
 
@@ -65,7 +65,7 @@ class CharactersViewModel @Inject constructor(
     // goes down the list and more data is needed because there is no more. That is why we need to
     // modify the original Flow instead of instantiating a new one manually.
     val characters = filters.flatMapLatest { (name, gender, status) ->
-        getAllCharactersFlow( name, gender, status )
+        getAllCharactersFlow( name, gender, status ).cachedIn( viewModelScope )
     }
 
     fun onFromChanged( from: Int ) { _from.value = from }

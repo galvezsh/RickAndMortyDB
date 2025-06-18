@@ -9,6 +9,7 @@
     <string name="episodes">Episodios</string>
     <string name="locations">Lugares</string>
     <string name="settings">Ajustes</string>
+    <string name="detail_character">Detalle del personaje</string>
 
     <string name="search_character">Busque por un personaje concreto</string>
     <string name="search_episode">Busque por un episodio concreto</string>
@@ -38,6 +39,12 @@
 
     <!--  Character  -->
     <string name="character_image_content">Imagen del personaje</string>
+    <string name="character_properties">Propiedades</string>
+    <string name="character_locations">Localizaciones</string>
+    <string name="character_origin">Origen</string>
+    <string name="character_location">Localidad</string>
+    <string name="character_episodes">Episodios</string>
+    <string name="navigate_to_detail_location">Navegar a la pantalla detallada del la localidad</string>
 
     <!--  Error and such  -->
     <string name="no_data">No se han obtenido datos del servidor</string>

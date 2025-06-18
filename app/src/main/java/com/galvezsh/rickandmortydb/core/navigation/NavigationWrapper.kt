@@ -31,8 +31,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.galvezsh.rickandmortydb.R
 import com.galvezsh.rickandmortydb.presentation.charactersScreen.CharactersScreen
+import com.galvezsh.rickandmortydb.presentation.charactersScreen.DetailCharacterScreen
 import com.galvezsh.rickandmortydb.presentation.episodesScreen.EpisodesScreen
 import com.galvezsh.rickandmortydb.presentation.locationsScreen.LocationsScreen
 import com.galvezsh.rickandmortydb.presentation.settingsScreen.SettingsScreen
@@ -54,22 +56,29 @@ fun NavigationWrapper() {
     Scaffold( bottomBar = { BottomNavigationBar( navController, currentDestination ) } ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = CharactersScreen, // <- here is the first screen to render
+            startDestination = CharactersScreenSerial, // <- here is the first screen to render
             modifier = Modifier.padding( innerPadding )
         ) {
-            composable<CharactersScreen> {
-                CharactersScreen()
+            composable<CharactersScreenSerial> {
+                CharactersScreen( navigateToDetailCharacter = { id -> navController.navigate( DetailCharacterScreenSerial( id ) ) } )
             }
 
-            composable<EpisodesScreen> {
+            composable<DetailCharacterScreenSerial> {
+                DetailCharacterScreen( // The screen receives the characterId in the ViewModel directly
+                    navigateToDetailLocation = { id -> },
+                    navigateToDetailEpisode = { id -> }
+                )
+            }
+
+            composable<EpisodesScreenSerial> {
                 EpisodesScreen()
             }
 
-            composable<LocationsScreen> {
+            composable<LocationsScreenSerial> {
                 LocationsScreen()
             }
 
-            composable<SettingsScreen> {
+            composable<SettingsScreenSerial> {
                 SettingsScreen()
             }
         }
@@ -90,10 +99,10 @@ fun BottomNavigationBar( navController: NavHostController, currentDestination: N
     // This is the list of the routes for the physical buttons in the bar when i describes the icon for the button,
     // the bottom text of the button and the route that takes when the user press this button
     val navigationBottomRoutes = listOf(
-        NavigationBottomRoute( Icons.Rounded.Person , stringResource( R.string.characters ), CharactersScreen ),
-        NavigationBottomRoute( Icons.Rounded.FormatListNumbered , stringResource( R.string.episodes ), EpisodesScreen ),
-        NavigationBottomRoute( Icons.Rounded.Place , stringResource( R.string.locations ), LocationsScreen ),
-        NavigationBottomRoute( Icons.Rounded.Settings , stringResource( R.string.settings ), SettingsScreen )
+        NavigationBottomRoute( Icons.Rounded.Person , stringResource( R.string.characters ), CharactersScreenSerial ),
+        NavigationBottomRoute( Icons.Rounded.FormatListNumbered , stringResource( R.string.episodes ), EpisodesScreenSerial ),
+        NavigationBottomRoute( Icons.Rounded.Place , stringResource( R.string.locations ), LocationsScreenSerial ),
+        NavigationBottomRoute( Icons.Rounded.Settings , stringResource( R.string.settings ), SettingsScreenSerial )
     )
 
     NavigationBar(

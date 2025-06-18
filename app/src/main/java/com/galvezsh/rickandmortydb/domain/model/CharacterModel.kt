@@ -11,4 +11,11 @@ data class CharacterModel(
     val origin: CharacterLocationModel,
     val location: CharacterLocationModel,
     val episodes: List<String>
-)
+) {
+    companion object {
+        /**
+         * Return a empty CharacterModel
+         */
+        fun empty() = CharacterModel( -1, "", "", "", "", "", "", CharacterLocationModel.empty(), CharacterLocationModel.empty(), emptyList<String>() )
+    }
+}

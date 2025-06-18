@@ -5,9 +5,7 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class GetCountOfCharactersFlow @Inject constructor( private val repository: MainRepository ) {
-    suspend operator fun invoke( onCountChanged: (Int) -> Unit ): Flow<Int> {
-        repository.totalCountFlow.collect { totalCharacters ->
-            onCountChanged( totalCharacters )
-        }
+    operator fun invoke(): Flow<Int> {
+        return repository.totalCountFlow
     }
 }

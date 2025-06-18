@@ -53,7 +53,7 @@ import com.galvezsh.rickandmortydb.presentation.ShowHeader
 import com.galvezsh.rickandmortydb.presentation.ShowSpacer
 
 @Composable
-fun CharactersScreen( viewModel: CharactersViewModel = hiltViewModel() ) {
+fun CharactersScreen( navigateToDetailCharacter: (Int) -> Unit, viewModel: CharactersViewModel = hiltViewModel() ) {
 
     val from by viewModel.from.collectAsState()
     val to by viewModel.to.collectAsState()
@@ -88,7 +88,7 @@ fun CharactersScreen( viewModel: CharactersViewModel = hiltViewModel() ) {
                     ItemList(
                         character = character,
                         onPressedItemList = { characterID ->
-                            /** Navigate to detail character */
+                            navigateToDetailCharacter( characterID )
                         }
                     )
                 }
@@ -222,7 +222,7 @@ private fun ItemList( character: CharacterModel, onPressedItemList: (Int) -> Uni
             AsyncImage(
                 model = character.image,
                 contentDescription = stringResource( R.string.character_image_content ),
-                modifier = Modifier.clip(RoundedCornerShape( 6.dp ) ),
+                modifier = Modifier.clip( RoundedCornerShape( 6.dp ) ),
                 contentScale = ContentScale.Crop
             )
             ShowSpacer( 5.dp )

@@ -8,6 +8,7 @@ import com.galvezsh.rickandmortydb.domain.model.CharacterModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
+import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -45,27 +46,27 @@ class MainRepository @Inject constructor( private val api: RetrofitApiService ) 
             } }
         ).flow
     }
-//    /**
-//     * This function is the responsible to request only one character from the api based on his id
-//     *
-//     * @param id The id of the character
-//     *
-//     * @return Return a nullable CharacterModel because, is possible that the id of the character wasn't valid
-//     */
-//    suspend fun getCharacterById( id: Int ): CharacterModel? {
-//        return try {
-//            val response = api.getCharacterById( id )
-//
-//            if ( response.isSuccessful )
-//                return response.body()!!
-//            else
-//                null
-//            // Something went wrong
-//
-//            // No internet
-//        } catch ( ex: IOException ) {
-//            null
-//        }
-//    }
+    /**
+     * This function is the responsible to request only one character from the api based on his id
+     *
+     * @param id The id of the character
+     *
+     * @return Return a nullable CharacterModel because, is possible that the id of the character wasn't valid
+     */
+    suspend fun getCharacterById( id: Int ): CharacterModel? {
+        return try {
+            val response = api.getCharacterById( id )
+
+            return if ( response.isSuccessful )
+                response.body()!!.toMap()
+            else
+                CharacterModel.empty()
+            // Something went wrong
+
+            // No internet
+        } catch ( ex: IOException ) {
+            null
+        }
+    }
 
 }

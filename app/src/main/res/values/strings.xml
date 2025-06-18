@@ -8,6 +8,7 @@
     <string name="episodes">Episodes</string>
     <string name="locations">Locations</string>
     <string name="settings">Settings</string>
+    <string name="detail_character">Character detail</string>
 
     <string name="search_character">Search por a custom character</string>
     <string name="search_episode">Search por a custom episode</string>
@@ -37,6 +38,12 @@
 
     <!--  Character  -->
     <string name="character_image_content">Character image</string>
+    <string name="character_properties">Properties</string>
+    <string name="character_locations">Locations</string>
+    <string name="character_origin">Origin</string>
+    <string name="character_location">Location</string>
+    <string name="character_episodes">Episodes</string>
+    <string name="navigate_to_detail_location">Navigate to detail location screen</string>
 
     <!--  Error and such  -->
     <string name="no_data">No data has been obtained from the server</string>

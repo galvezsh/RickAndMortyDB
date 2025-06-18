@@ -68,10 +68,9 @@ fun ShowSpacer( dp: Dp ) {
     Spacer( modifier = Modifier.padding(dp) )
 }
 
-//@Composable
-//fun ShowToast( context: Context, text: String, isLengthShort: Boolean ) {
-//    Toast.makeText( context, text, if ( isLengthShort ) Toast.LENGTH_SHORT else Toast.LENGTH_LONG ).show()
-//}
+fun showToast( context: Context, text: String, isLengthShort: Boolean ) {
+    Toast.makeText( context, text, if ( isLengthShort ) Toast.LENGTH_SHORT else Toast.LENGTH_LONG ).show()
+}
 
 @Composable
 fun ShowCircularProgressBar() {
