@@ -4,32 +4,31 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.galvezsh.rickandmortydb.data.RetrofitApiService
 import com.galvezsh.rickandmortydb.data.retrofitResponse.characterResponse.CharacterResponse
+import com.galvezsh.rickandmortydb.data.retrofitResponse.episodeResponse.EpisodeResponse
 import com.galvezsh.rickandmortydb.domain.model.CharacterModel
+import com.galvezsh.rickandmortydb.domain.model.EpisodeModel
 import com.galvezsh.rickandmortydb.mappers.toDomain
 import okio.IOException
 
-// This is a special class for handling the paging in LazyColumns, returning a constant flow data of CharacterModel
-class CharacterPagingSource(
+class EpisodePagingSource(
     private val api: RetrofitApiService,
     private val name: String,
-    private val gender: String,
-    private val status: String,
+    private val season: String,
     private val onCountExtracted: (Int) -> Unit
-): PagingSource<Int, CharacterModel>() {
+): PagingSource<Int, EpisodeModel>() {
 
-    override fun getRefreshKey( state: PagingState<Int, CharacterModel> ): Int? {
+    override fun getRefreshKey( state: PagingState<Int, EpisodeModel> ): Int? {
         return state.anchorPosition
     }
 
-    // This is the main function that handles the paging flow
-    override suspend fun load( params: LoadParams<Int> ): LoadResult<Int, CharacterModel> {
+    override suspend fun load( params: LoadParams<Int> ): LoadResult<Int, EpisodeModel> {
         return try {
             val page = params.key ?: 1
-            val response = api.getCharacters( page, name, gender, status )
+            val response = api.getEpisodes( page, name, season )
 
             if ( response.isSuccessful ) {
                 val body = response.body()
-                val characters = body?.results ?: emptyList<CharacterResponse>()
+                val episodes = body?.results ?: emptyList<EpisodeResponse>()
                 onCountExtracted( body?.info?.count ?: 0 )
 
                 val prevKey = if ( body?.info?.prev != null ) page-1 else null
@@ -37,7 +36,7 @@ class CharacterPagingSource(
 
                 // Ok
                 LoadResult.Page(
-                    data = characters.map { it.toDomain() },
+                    data = episodes.map { it.toDomain() },
                     prevKey = prevKey,
                     nextKey = nextKey
                 )
@@ -46,7 +45,7 @@ class CharacterPagingSource(
             } else {
                 onCountExtracted( 0 )
                 LoadResult.Page(
-                    data = emptyList<CharacterModel>(),
+                    data = emptyList<EpisodeModel>(),
                     prevKey = null,
                     nextKey = null
                 )

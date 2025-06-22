@@ -1,4 +1,4 @@
-package com.galvezsh.rickandmortydb.presentation.charactersScreen
+package com.galvezsh.rickandmortydb.presentation.charactersScreens
 
 import android.content.Context
 import androidx.compose.foundation.background
@@ -56,6 +56,7 @@ fun DetailCharacterScreen(
 
     val character by viewModel.character.collectAsState()
     val context = LocalContext.current
+    val text = stringResource( R.string.url_not_valid )
 
     ShowHeader( stringResource( R.string.detail_character ).uppercase() ) {
         if ( character != null )
@@ -64,7 +65,7 @@ fun DetailCharacterScreen(
                 navigateToDetailEpisode = { id -> navigateToDetailEpisode( id ) },
                 navigateToDetailLocation = { id ->
                     if (id != null) navigateToDetailLocation( id )
-                    else showInvalidUrl( context )
+                    else showInvalidUrl( context, text )
                 }
             )
         else
@@ -242,8 +243,8 @@ private fun Body( character: CharacterModel, navigateToDetailLocation: (Int?) ->
     }
 }
 
-private fun extractIdFromUrl(url: String) = url.substringAfterLast("/").toIntOrNull()
+private fun extractIdFromUrl( url: String ) = url.substringAfterLast("/").toIntOrNull()
 
-private fun showInvalidUrl( context: Context ) {
-    showToast( context, "URL no valida", true )
+private fun showInvalidUrl( context: Context, text: String ) {
+    showToast( context, text, true )
 }

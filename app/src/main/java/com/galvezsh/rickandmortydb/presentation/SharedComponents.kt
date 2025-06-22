@@ -17,6 +17,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -44,7 +47,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
+import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
 import com.galvezsh.rickandmortydb.R
 
 // In this file are defined some composable functions that can be use in multiples screens, like in React,
@@ -76,6 +82,28 @@ fun showToast( context: Context, text: String, isLengthShort: Boolean ) {
 fun ShowCircularProgressBar() {
     Box( modifier = Modifier.fillMaxSize() ) {
         CircularProgressIndicator( modifier = Modifier.align( Alignment.Center ), color = MaterialTheme.colorScheme.surface )
+    }
+}
+
+@Composable
+fun<T: Any> ShowPagingCases( paging: LazyPagingItems<T>, pagingCount: Int ) {
+    when {
+        paging.loadState.refresh is LoadState.NotLoading && pagingCount == 0 -> {
+            ShowErrorBox( stringResource( R.string.no_data ) )
+        }
+
+        paging.loadState.hasError -> {
+            ShowErrorBoxWithButton(
+                text = stringResource( R.string.no_internet ),
+                textButton = stringResource( R.string.retry ),
+                onPressedButton = { paging.retry() }
+            )
+        }
+
+        paging.loadState.refresh is LoadState.Loading && pagingCount == 0 ||
+                paging.loadState.append is LoadState.Loading -> {
+            ShowCircularProgressBar()
+        }
     }
 }
 
@@ -206,6 +234,20 @@ fun ShowBottomBox( visibility: Boolean, content: @Composable () -> Unit ) {
             }
         }
     }
+}
+
+@Composable
+fun ShowRowButton( textButton: String, isSelected: Boolean, modifier: Modifier, onPressedButton: () -> Unit ) {
+    Button(
+        onClick = { onPressedButton() },
+        modifier = modifier,
+        shape = RoundedCornerShape( 4.dp ),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = if (isSelected) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.background
+        )
+
+    ) { Text( text = textButton ) }
 }
 
 @Composable

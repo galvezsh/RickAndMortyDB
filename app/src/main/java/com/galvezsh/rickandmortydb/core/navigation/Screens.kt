@@ -12,10 +12,13 @@ object CharactersScreenSerial
 data class DetailCharacterScreenSerial( val characterId: Int )
 
 @Serializable
-object LocationsScreenSerial
+object EpisodesScreenSerial
 
 @Serializable
-object EpisodesScreenSerial
+data class DetailEpisodeScreenSerial( val episodeId: Int )
+
+@Serializable
+object LocationsScreenSerial
 
 @Serializable
 object SettingsScreenSerial

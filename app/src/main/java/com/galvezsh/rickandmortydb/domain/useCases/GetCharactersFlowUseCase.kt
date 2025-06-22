@@ -13,9 +13,9 @@ import javax.inject.Inject
  * along with parentheses at the end, like -> 'getAllCharactersFlow()'. Remember use the lowercase
  * because is the variable itself
  */
-class GetAllCharactersFlow @Inject constructor( private val repository: MainRepository ) {
+class GetCharactersFlowUseCase @Inject constructor(private val repository: MainRepository ) {
 
     operator fun invoke( name: String, gender: String, status: String ): Flow<PagingData<CharacterModel>> {
-        return repository.getAllCharactersFlow( name, gender, status )
+        return repository.getCharactersFlow( name, gender, status )
     }
 }

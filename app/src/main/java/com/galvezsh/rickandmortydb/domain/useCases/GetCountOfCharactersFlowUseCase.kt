@@ -4,8 +4,8 @@ import com.galvezsh.rickandmortydb.data.MainRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class GetCountOfCharactersFlow @Inject constructor( private val repository: MainRepository ) {
+class GetCountOfCharactersFlowUseCase @Inject constructor(private val repository: MainRepository ) {
     operator fun invoke(): Flow<Int> {
-        return repository.totalCountFlow
+        return repository.totalCharactersFlow
     }
 }

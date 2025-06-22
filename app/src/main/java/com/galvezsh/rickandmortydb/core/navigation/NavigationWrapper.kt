@@ -31,11 +31,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
 import com.galvezsh.rickandmortydb.R
-import com.galvezsh.rickandmortydb.presentation.charactersScreen.CharactersScreen
-import com.galvezsh.rickandmortydb.presentation.charactersScreen.DetailCharacterScreen
-import com.galvezsh.rickandmortydb.presentation.episodesScreen.EpisodesScreen
+import com.galvezsh.rickandmortydb.presentation.charactersScreens.CharactersScreen
+import com.galvezsh.rickandmortydb.presentation.charactersScreens.DetailCharacterScreen
+import com.galvezsh.rickandmortydb.presentation.episodesScreens.DetailEpisodeScreen
+import com.galvezsh.rickandmortydb.presentation.episodesScreens.EpisodesScreen
 import com.galvezsh.rickandmortydb.presentation.locationsScreen.LocationsScreen
 import com.galvezsh.rickandmortydb.presentation.settingsScreen.SettingsScreen
 
@@ -60,7 +60,9 @@ fun NavigationWrapper() {
             modifier = Modifier.padding( innerPadding )
         ) {
             composable<CharactersScreenSerial> {
-                CharactersScreen( navigateToDetailCharacter = { id -> navController.navigate( DetailCharacterScreenSerial( id ) ) } )
+                CharactersScreen( navigateToDetailCharacter = { id ->
+                    navController.navigate( DetailCharacterScreenSerial( id ) )
+                } )
             }
 
             composable<DetailCharacterScreenSerial> {
@@ -71,7 +73,14 @@ fun NavigationWrapper() {
             }
 
             composable<EpisodesScreenSerial> {
-                EpisodesScreen()
+                EpisodesScreen( navigateToDetailEpisode = { id ->
+                    navController.navigate( DetailEpisodeScreenSerial( id ) )
+                } )
+            }
+
+            composable<DetailEpisodeScreenSerial> {
+                DetailEpisodeScreen( // The screen receives the episodeId in the ViewModel directly
+                    navigateToDetailCharacter = { id -> } )
             }
 
             composable<LocationsScreenSerial> {

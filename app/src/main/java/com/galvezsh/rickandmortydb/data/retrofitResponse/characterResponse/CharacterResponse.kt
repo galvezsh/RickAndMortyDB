@@ -1,6 +1,5 @@
-package com.galvezsh.rickandmortydb.data.retrofitResponse
+package com.galvezsh.rickandmortydb.data.retrofitResponse.characterResponse
 
-import com.galvezsh.rickandmortydb.domain.model.CharacterModel
 import com.google.gson.annotations.SerializedName
 
 data class CharacterResponse(
@@ -14,19 +13,4 @@ data class CharacterResponse(
     @SerializedName("location") val location: CharacterLocationResponse,
     @SerializedName("image") val image: String?,
     @SerializedName("episode") val episode: List<String>
-) {
-    fun toMap(): CharacterModel {
-        return CharacterModel(
-            id = id,
-            name = name,
-            isAlive = status,
-            species = species ?: "",
-            type = type ?: "",
-            gender = gender ?: "",
-            image = image ?: "",
-            origin = origin.toMap(),
-            location = location.toMap(),
-            episodes = episode
-        )
-    }
-}
+)

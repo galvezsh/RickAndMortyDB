@@ -9,7 +9,6 @@
     <string name="episodes">Episodios</string>
     <string name="locations">Lugares</string>
     <string name="settings">Ajustes</string>
-    <string name="detail_character">Detalle del personaje</string>
 
     <string name="search_character">Busque por un personaje concreto</string>
     <string name="search_episode">Busque por un episodio concreto</string>
@@ -45,9 +44,20 @@
     <string name="character_location">Localidad</string>
     <string name="character_episodes">Episodios</string>
     <string name="navigate_to_detail_location">Navegar a la pantalla detallada del la localidad</string>
+    <string name="detail_character">Detalle del personaje</string>
+
+    <!--  Items episodes paging  -->
+    <string name="episode_all">Todas</string>
+    <string name="episode_episode">Episodio</string>
+    <string name="episode_season">Temporada</string>
+
+    <!--  Episode  -->
+    <string name="detail_episode">Detalle del episodio</string>
+    <string name="episode_details">Detalles</string>
 
     <!--  Error and such  -->
     <string name="no_data">No se han obtenido datos del servidor</string>
     <string name="no_internet">Se ha producido un error inesperado. Compruebe su conexión a internet o intentelo de nuevo más tarde</string>
     <string name="retry">Reintentar</string>
+    <string name="url_not_valid">URL no válida</string>
 </resources>

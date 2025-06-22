@@ -1,4 +1,4 @@
-package com.galvezsh.rickandmortydb.presentation.charactersScreen
+package com.galvezsh.rickandmortydb.presentation.charactersScreens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -18,8 +18,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -40,16 +38,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
 import com.galvezsh.rickandmortydb.R
 import com.galvezsh.rickandmortydb.domain.model.CharacterModel
 import com.galvezsh.rickandmortydb.presentation.ShowBottomBox
-import com.galvezsh.rickandmortydb.presentation.ShowCircularProgressBar
-import com.galvezsh.rickandmortydb.presentation.ShowErrorBox
-import com.galvezsh.rickandmortydb.presentation.ShowErrorBoxWithButton
 import com.galvezsh.rickandmortydb.presentation.ShowHeader
+import com.galvezsh.rickandmortydb.presentation.ShowPagingCases
+import com.galvezsh.rickandmortydb.presentation.ShowRowButton
 import com.galvezsh.rickandmortydb.presentation.ShowSpacer
 
 @Composable
@@ -68,7 +64,6 @@ fun CharactersScreen( navigateToDetailCharacter: (Int) -> Unit, viewModel: Chara
     // parameter changes, optimizing the code since it avoids having to execute this code for
     // each recomposition of this screen.
     LaunchedEffect( numberOfCharacters ) { viewModel.onFromChanged( numberOfCharacters ) }
-
     ShowHeader(
         from = from,
         to = to,
@@ -85,43 +80,19 @@ fun CharactersScreen( navigateToDetailCharacter: (Int) -> Unit, viewModel: Chara
 
                 // Checking if the character in the index position is NOT null, for safety
                 characters[index]?.let { character ->
-                    ItemList(
-                        character = character,
-                        onPressedItemList = { characterID ->
-                            navigateToDetailCharacter( characterID )
-                        }
-                    )
+                    ItemList( character ) { navigateToDetailCharacter( it ) }
                 }
             }
         }
-
-        when {
-            characters.loadState.refresh is LoadState.NotLoading && numberOfCharacters == 0 -> {
-                ShowErrorBox( stringResource( R.string.no_data ) )
-            }
-
-            characters.loadState.hasError -> {
-                ShowErrorBoxWithButton(
-                    text = stringResource( R.string.no_internet ),
-                    textButton = stringResource( R.string.retry ),
-                    onPressedButton = { characters.retry() }
-                )
-            }
-
-            characters.loadState.refresh is LoadState.Loading && numberOfCharacters == 0 ||
-                    characters.loadState.append is LoadState.Loading -> {
-                ShowCircularProgressBar()
-            }
-        }
-
+        ShowPagingCases( paging = characters, pagingCount = numberOfCharacters )
         FilterBox( viewModel = viewModel, visibility = visibilityFF )
     }
 }
 
 @Composable
 private fun FilterBox( viewModel: CharactersViewModel, visibility: Boolean ) {
-    val selectedIndexGender = viewModel.genderIndex.collectAsState()
-    val selectedIndexStatus = viewModel.statusIndex.collectAsState()
+    val selectedIndexGender by viewModel.genderIndex.collectAsState()
+    val selectedIndexStatus by viewModel.statusIndex.collectAsState()
     val genderListText = listOf<String>(
         stringResource( R.string.filterbox_character_all ),
         stringResource( R.string.filterbox_character_male ),
@@ -161,19 +132,14 @@ private fun FilterBox( viewModel: CharactersViewModel, visibility: Boolean ) {
 
             FlowRow( modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy( 8.dp ) ) {
                 repeat( genderListText.size ) { index ->
-                    val isSelected = ( index == selectedIndexGender.value )
+                    val isSelected = ( index == selectedIndexGender )
 
-                    Button(
-                        onClick = { viewModel.onGenderFilterChanged( newGender = genderListData[ index ], index ) },
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape( 4.dp ),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = if (isSelected) MaterialTheme.colorScheme.surfaceVariant
-                                             else MaterialTheme.colorScheme.surface,
-                            contentColor = MaterialTheme.colorScheme.background
-                        )
-
-                    ) { Text( text = genderListText[ index ] ) }
+                    ShowRowButton(
+                        textButton = genderListText[ index ],
+                        isSelected = isSelected,
+                        modifier = Modifier.weight( 1f ),
+                        onPressedButton = { viewModel.onGenderFilterChanged( newGender = genderListData[ index ], index ) }
+                    )
                 }
             }
 
@@ -189,18 +155,14 @@ private fun FilterBox( viewModel: CharactersViewModel, visibility: Boolean ) {
 
             FlowRow( modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy( 8.dp ) ) {
                 repeat( statusListText.size ) { index ->
-                    val isSelected = ( index == selectedIndexStatus.value )
+                    val isSelected = ( index == selectedIndexStatus )
 
-                    Button(
-                        onClick = { viewModel.onStatusFilterChanged( statusListData[ index ], index ) },
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape( 4.dp ),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = if (isSelected) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surface,
-                            contentColor = MaterialTheme.colorScheme.background
-                        )
-
-                    ) { Text( text = statusListText[ index ] ) }
+                    ShowRowButton(
+                        textButton = statusListText[ index ],
+                        isSelected = isSelected,
+                        modifier = Modifier.weight( 1f ),
+                        onPressedButton = { viewModel.onStatusFilterChanged( newStatus = statusListData[ index ], index ) }
+                    )
                 }
             }
         }
@@ -209,6 +171,7 @@ private fun FilterBox( viewModel: CharactersViewModel, visibility: Boolean ) {
 
 @Composable
 private fun ItemList( character: CharacterModel, onPressedItemList: (Int) -> Unit ) {
+
     Box( modifier = Modifier
         .padding( top = 16.dp )
         .clip( RoundedCornerShape( 12.dp ))
