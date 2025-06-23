@@ -68,7 +68,9 @@ fun NavigationWrapper() {
             composable<DetailCharacterScreenSerial> {
                 DetailCharacterScreen( // The screen receives the characterId in the ViewModel directly
                     navigateToDetailLocation = { id -> },
-                    navigateToDetailEpisode = { id -> }
+                    navigateToDetailEpisode = { id ->
+                        navController.navigate( DetailEpisodeScreenSerial( id ) )
+                    }
                 )
             }
 
@@ -80,7 +82,9 @@ fun NavigationWrapper() {
 
             composable<DetailEpisodeScreenSerial> {
                 DetailEpisodeScreen( // The screen receives the episodeId in the ViewModel directly
-                    navigateToDetailCharacter = { id -> } )
+                    navigateToDetailCharacter = { id ->
+                        navController.navigate( DetailCharacterScreenSerial( id ) )
+                    } )
             }
 
             composable<LocationsScreenSerial> {

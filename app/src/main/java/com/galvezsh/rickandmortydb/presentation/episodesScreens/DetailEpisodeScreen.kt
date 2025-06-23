@@ -15,10 +15,15 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -33,7 +38,10 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.galvezsh.rickandmortydb.R
 import com.galvezsh.rickandmortydb.domain.model.EpisodeModel
+import com.galvezsh.rickandmortydb.presentation.ShowDataListFromDetail
+import com.galvezsh.rickandmortydb.presentation.ShowErrorBox
 import com.galvezsh.rickandmortydb.presentation.ShowSpacer
+import com.galvezsh.rickandmortydb.presentation.extractIdFromUrl
 import com.galvezsh.rickandmortydb.presentation.showToast
 
 @Composable
@@ -45,9 +53,18 @@ fun DetailEpisodeScreen( navigateToDetailCharacter: (Int) -> Unit, viewModel: De
 
     ShowHeader( stringResource( R.string.detail_episode ).uppercase() ) {
         if ( episode != null ) {
-            Body( episode!! ) { navigateToDetailCharacter( it ) }
+            ShowBody( episode = episode!! ) {
+                ShowCharacterList(
+                    episode = episode!!,
+                    viewModel = viewModel,
+                    navigateToDetailCharacter = { id ->
+                        if (id != null) navigateToDetailCharacter( id )
+                        else showToast( context, text, true )
+                    }
+                )
+            }
         } else {
-            showInvalidUrl( context, text )
+            ShowErrorBox( text = stringResource( R.string.no_internet ) )
         }
     }
 }
@@ -80,7 +97,7 @@ private fun ShowHeader( text: String, content: @Composable () -> Unit ) {
 }
 
 @Composable
-private fun Body( episode: EpisodeModel, navigateToDetailCharacter: (Int) -> Unit ) {
+private fun ShowBody( episode: EpisodeModel, content: @Composable () -> Unit ) {
 
     val ( seasonNumber, episodeNumber ) = parseEpisodeCode( episode.episode ) ?: Pair( 0, 0 )
     val modifierRowItem = Modifier
@@ -152,31 +169,36 @@ private fun Body( episode: EpisodeModel, navigateToDetailCharacter: (Int) -> Uni
                 color = MaterialTheme.colorScheme.onSecondary,
             )
             ShowSpacer( 8.dp )
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy( 4.dp ),
-                verticalArrangement = Arrangement.spacedBy( 4.dp ),
-            ) {
-                repeat( episode.characters.size ) { index ->
-                    var characterId = extractIdFromUrl( episode.characters[ index ] )!! // If the are characters, always is gonna be the Id present
 
-                    Text(
-                        text = "" + characterId,
-                        fontSize = 16.sp,
-                        textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.onSecondary,
-                        modifier = modifierRowItem.size( 24.dp ).clickable { navigateToDetailCharacter( characterId ) }
-                    )
-                }
-            }
-            ShowSpacer( 8.dp )
+            content()
         }
     }
 }
 
-private fun extractIdFromUrl( url: String ) = url.substringAfterLast("/").toIntOrNull()
+@Composable
+fun ShowCharacterList( episode: EpisodeModel, viewModel: DetailEpisodeViewModel, navigateToDetailCharacter: (Int?) -> Unit ) {
 
-private fun showInvalidUrl( context: Context, text: String ) {
-    showToast( context, text, true )
+    val characterTexts by viewModel.characterTexts.collectAsState()
+    val modifierRowItem = Modifier
+        .clip( RoundedCornerShape( 4.dp ) )
+        .background( MaterialTheme.colorScheme.primary )
+        .padding( 8.dp )
+
+    LaunchedEffect( episode ) { viewModel.loadCharacters( episode.characters ) }
+
+    if ( characterTexts.isEmpty() ) {
+        CircularProgressIndicator( color = MaterialTheme.colorScheme.surface )
+        ShowSpacer( 8.dp )
+    } else {
+        characterTexts.forEachIndexed { index, text ->
+            ShowDataListFromDetail(
+                text = text,
+                modifier = modifierRowItem,
+                onPressedRowItem = { navigateToDetailCharacter( extractIdFromUrl( episode.characters[index] )!! /* Character ID */) }
+            )
+        }
+        ShowSpacer(4.dp)
+    }
 }
 
 private fun parseEpisodeCode( code: String ): Pair<Int, Int>? {

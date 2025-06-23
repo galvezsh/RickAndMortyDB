@@ -49,7 +49,7 @@ import com.galvezsh.rickandmortydb.presentation.ShowRowButton
 import com.galvezsh.rickandmortydb.presentation.ShowSpacer
 
 @Composable
-fun CharactersScreen( navigateToDetailCharacter: (Int) -> Unit, viewModel: CharactersViewModel = hiltViewModel() ) {
+fun CharactersScreen( navigateToDetailCharacter: (Int) -> Unit, viewModel: CharacterViewModel = hiltViewModel() ) {
 
     val from by viewModel.from.collectAsState()
     val to by viewModel.to.collectAsState()
@@ -90,7 +90,7 @@ fun CharactersScreen( navigateToDetailCharacter: (Int) -> Unit, viewModel: Chara
 }
 
 @Composable
-private fun FilterBox( viewModel: CharactersViewModel, visibility: Boolean ) {
+private fun FilterBox(viewModel: CharacterViewModel, visibility: Boolean ) {
     val selectedIndexGender by viewModel.genderIndex.collectAsState()
     val selectedIndexStatus by viewModel.statusIndex.collectAsState()
     val genderListText = listOf<String>(

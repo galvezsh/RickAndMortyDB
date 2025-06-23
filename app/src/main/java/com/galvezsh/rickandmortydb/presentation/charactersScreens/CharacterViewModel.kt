@@ -19,7 +19,7 @@ import kotlin.collections.component2
 import kotlin.collections.component3
 
 @HiltViewModel
-class CharactersViewModel @Inject constructor(
+class CharacterViewModel @Inject constructor(
     private val getAllCharactersFlow: GetCharactersFlowUseCase,
     private val getCountOfCharactersFlow: GetCountOfCharactersFlowUseCase
 ): ViewModel() {

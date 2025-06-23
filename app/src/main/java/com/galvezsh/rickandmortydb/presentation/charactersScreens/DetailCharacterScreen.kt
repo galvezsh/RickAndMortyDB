@@ -1,13 +1,11 @@
 package com.galvezsh.rickandmortydb.presentation.charactersScreens
 
-import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -22,11 +20,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -43,8 +43,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.galvezsh.rickandmortydb.R
 import com.galvezsh.rickandmortydb.domain.model.CharacterModel
+import com.galvezsh.rickandmortydb.presentation.ShowDataListFromDetail
 import com.galvezsh.rickandmortydb.presentation.ShowErrorBox
 import com.galvezsh.rickandmortydb.presentation.ShowSpacer
+import com.galvezsh.rickandmortydb.presentation.extractIdFromUrl
 import com.galvezsh.rickandmortydb.presentation.showToast
 
 @Composable
@@ -60,14 +62,21 @@ fun DetailCharacterScreen(
 
     ShowHeader( stringResource( R.string.detail_character ).uppercase() ) {
         if ( character != null )
-            Body(
+            ShowBody(
                 character = character!!,
-                navigateToDetailEpisode = { id -> navigateToDetailEpisode( id ) },
                 navigateToDetailLocation = { id ->
                     if (id != null) navigateToDetailLocation( id )
-                    else showInvalidUrl( context, text )
+                    else showToast( context, text, true )
                 }
-            )
+            ) {
+                ShowEpisodeList(
+                    character = character!!,
+                    viewModel = viewModel,
+                    navigateToDetailEpisode = { id ->
+                    if (id != null) navigateToDetailEpisode( id )
+                    else showToast( context, text, true )
+                } )
+            }
         else
             ShowErrorBox( text = stringResource( R.string.no_internet ) )
     }
@@ -101,7 +110,11 @@ private fun ShowHeader( text: String, content: @Composable () -> Unit ) {
 }
 
 @Composable
-private fun Body( character: CharacterModel, navigateToDetailLocation: (Int?) -> Unit, navigateToDetailEpisode: (Int) -> Unit ) {
+private fun ShowBody(
+    character: CharacterModel,
+    navigateToDetailLocation: (Int?) -> Unit,
+    content: @Composable () -> Unit
+) {
 
     val propertiesLabel = listOf(
         stringResource( R.string.character_species ),
@@ -222,29 +235,46 @@ private fun Body( character: CharacterModel, navigateToDetailLocation: (Int?) ->
                 color = MaterialTheme.colorScheme.onSecondary,
             )
             ShowSpacer( 8.dp )
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy( 4.dp ),
-                verticalArrangement = Arrangement.spacedBy( 4.dp ),
-            ) {
-                repeat( character.episodes.size ) { index ->
-                    var episodeId = extractIdFromUrl( character.episodes[ index ] )!! // If the are episodes, always is gonna be the Id present
 
-                    Text(
-                        text = "" + episodeId,
-                        fontSize = 16.sp,
-                        textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.onSecondary,
-                        modifier = modifierRowItem.size( 24.dp ).clickable { navigateToDetailEpisode( episodeId ) }
-                    )
-                }
-            }
-            ShowSpacer( 8.dp )
+            content()
         }
     }
 }
 
-private fun extractIdFromUrl( url: String ) = url.substringAfterLast("/").toIntOrNull()
+// To load the episodes in a coroutine, what I do is create a 'loadEpisodes' function in the view
+// model that will receive a list of the retrofit URLs to obtain the episodes. With the
+// 'LaunchedEffect', it is controlled that it only executes when the 'character' model changes, that
+// is, when it is empty, which is when it is initialized and when it obtains the data from the API.
+// Once the data is loaded, 'episodeTexts' is updated, causing this composable function to be
+// rebuilt, iterating through each text obtained from episodeTexts. And since all the texts come
+// from the original 'character.episodes' array, which are ordered in the same way, it is enough
+// to obtain the index of 'episodeTexts' and send it as a parameter to the character detail screen.
+@Composable
+private fun ShowEpisodeList(
+    character: CharacterModel,
+    viewModel: DetailCharacterViewModel,
+    navigateToDetailEpisode: (Int?) -> Unit
+) {
 
-private fun showInvalidUrl( context: Context, text: String ) {
-    showToast( context, text, true )
+    val episodeTexts by viewModel.episodeTexts.collectAsState()
+    val modifierRowItem = Modifier
+        .clip( RoundedCornerShape( 4.dp ) )
+        .background( MaterialTheme.colorScheme.primary )
+        .padding( 8.dp )
+
+    LaunchedEffect( character ) { viewModel.loadEpisodes( character.episodes ) }
+
+    if ( episodeTexts.isEmpty() ) {
+        CircularProgressIndicator( color = MaterialTheme.colorScheme.surface )
+        ShowSpacer( 8.dp )
+    } else {
+        episodeTexts.forEachIndexed { index, text ->
+            ShowDataListFromDetail(
+                text = text,
+                modifier = modifierRowItem,
+                onPressedRowItem = { navigateToDetailEpisode( extractIdFromUrl( character.episodes[index] )!! /* Episode ID */) }
+            )
+        }
+        ShowSpacer( 4.dp )
+    }
 }
