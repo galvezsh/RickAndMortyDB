@@ -1,6 +1,6 @@
 package com.galvezsh.rickandmortydb.di
 
-import com.galvezsh.rickandmortydb.data.RetrofitApiService
+import com.galvezsh.rickandmortydb.data.remote.api.RetrofitApiService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

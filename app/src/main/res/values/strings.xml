@@ -29,6 +29,13 @@
     <string name="filterbox_character_alive">Alive</string>
     <string name="filterbox_character_dead">Dead</string>
 
+    <string name="filterbox_location_planet">Planet</string>
+    <string name="filterbox_location_space_station">Space station</string>
+    <string name="filterbox_location_microverse">Microverse</string>
+    <string name="filterbox_location_dream">Dream</string>
+    <string name="filterbox_location_diegesis">Diegesis</string>
+    <string name="filterbox_location_dimension">Dimension</string>
+
     <!--  Items characters paging  -->
     <string name="character_species">Species</string>
     <string name="character_gender">Gender</string>
@@ -44,6 +51,7 @@
     <string name="character_location">Location</string>
     <string name="character_episodes">Episodes</string>
     <string name="navigate_to_detail_location">Navigate to detail location screen</string>
+    <string name="navigate_to_detail_episode">Navigate to detail location screen</string>
 
     <!--  Items episodes paging  -->
     <string name="episode_all">All</string>
@@ -53,6 +61,15 @@
     <!--  Episode  -->
     <string name="detail_episode">Episode detail</string>
     <string name="episode_details">Details</string>
+
+    <!--  Items locations paging  -->
+    <string name="location_type">Type</string>
+    <string name="location_dimension">Dimension</string>
+
+    <!--  Location  -->
+    <string name="detail_location">Location detail</string>
+    <string name="location_characteristics">Characteristics</string>
+    <string name="location_residents">Residents</string>
 
     <!--  Error and such  -->
     <string name="no_data">No data has been obtained from the server</string>

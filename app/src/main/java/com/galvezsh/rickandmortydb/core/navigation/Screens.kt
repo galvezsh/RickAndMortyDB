@@ -21,6 +21,9 @@ data class DetailEpisodeScreenSerial( val episodeId: Int )
 object LocationsScreenSerial
 
 @Serializable
+data class DetailLocationScreenSerial( val locationId: Int )
+
+@Serializable
 object SettingsScreenSerial
 
 // And this describes the route for the list of buttons for the BottomNavigationBar

@@ -1,7 +1,7 @@
 package com.galvezsh.rickandmortydb.domain.useCases
 
 import androidx.paging.PagingData
-import com.galvezsh.rickandmortydb.data.MainRepository
+import com.galvezsh.rickandmortydb.data.repository.RickAndMortyRepository
 import com.galvezsh.rickandmortydb.domain.model.CharacterModel
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -13,7 +13,7 @@ import javax.inject.Inject
  * along with parentheses at the end, like -> 'getAllCharactersFlow()'. Remember use the lowercase
  * because is the variable itself
  */
-class GetCharactersFlowUseCase @Inject constructor(private val repository: MainRepository ) {
+class GetCharactersFlowUseCase @Inject constructor(private val repository: RickAndMortyRepository ) {
 
     operator fun invoke( name: String, gender: String, status: String ): Flow<PagingData<CharacterModel>> {
         return repository.getCharactersFlow( name, gender, status )

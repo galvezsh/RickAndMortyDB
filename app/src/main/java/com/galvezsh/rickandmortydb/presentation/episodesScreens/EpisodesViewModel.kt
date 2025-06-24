@@ -40,11 +40,11 @@ class EpisodesViewModel @Inject constructor(
 
     val episodes = filters.flatMapLatest { (name, season) ->
         getEpisodesFlowUseCase( name, season )
-    }.flowOn( Dispatchers.Default )
+    }
 
     init {
         viewModelScope.launch {
-            getCountOfEpisodesFlowUseCase().collect { _to.value = it }
+            getCountOfEpisodesFlowUseCase().flowOn( Dispatchers.Default ).collect { _to.value = it }
         }
     }
 

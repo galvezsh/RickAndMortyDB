@@ -36,7 +36,8 @@ import com.galvezsh.rickandmortydb.presentation.charactersScreens.CharactersScre
 import com.galvezsh.rickandmortydb.presentation.charactersScreens.DetailCharacterScreen
 import com.galvezsh.rickandmortydb.presentation.episodesScreens.DetailEpisodeScreen
 import com.galvezsh.rickandmortydb.presentation.episodesScreens.EpisodesScreen
-import com.galvezsh.rickandmortydb.presentation.locationsScreen.LocationsScreen
+import com.galvezsh.rickandmortydb.presentation.locationsScreens.DetailLocationScreen
+import com.galvezsh.rickandmortydb.presentation.locationsScreens.LocationsScreen
 import com.galvezsh.rickandmortydb.presentation.settingsScreen.SettingsScreen
 
 // Everything starts here, with the definition of the navigation.
@@ -67,7 +68,9 @@ fun NavigationWrapper() {
 
             composable<DetailCharacterScreenSerial> {
                 DetailCharacterScreen( // The screen receives the characterId in the ViewModel directly
-                    navigateToDetailLocation = { id -> },
+                    navigateToDetailLocation = { id ->
+                        navController.navigate( DetailLocationScreenSerial( id ) )
+                    },
                     navigateToDetailEpisode = { id ->
                         navController.navigate( DetailEpisodeScreenSerial( id ) )
                     }
@@ -88,7 +91,19 @@ fun NavigationWrapper() {
             }
 
             composable<LocationsScreenSerial> {
-                LocationsScreen()
+                LocationsScreen(
+                    navigateToDetailLocation = { id ->
+                        navController.navigate( DetailLocationScreenSerial( id ) )
+                    }
+                )
+            }
+
+            composable<DetailLocationScreenSerial> {
+                DetailLocationScreen(
+                    navigateToDetailCharacter = { id ->
+                        navController.navigate( DetailCharacterScreenSerial( id ) )
+                    }
+                )
             }
 
             composable<SettingsScreenSerial> {

@@ -30,6 +30,13 @@
     <string name="filterbox_character_alive">Vivo</string>
     <string name="filterbox_character_dead">Muerto</string>
 
+    <string name="filterbox_location_planet">Planeta</string>
+    <string name="filterbox_location_space_station">Estacion espacial</string>
+    <string name="filterbox_location_microverse">Microverso</string>
+    <string name="filterbox_location_diegesis">Diegesis</string>
+    <string name="filterbox_location_dream">Sueño</string>
+    <string name="filterbox_location_dimension">Dimension</string>
+
     <!--  Items characters paging  -->
     <string name="character_species">Especie</string>
     <string name="character_gender">Género</string>
@@ -43,8 +50,10 @@
     <string name="character_origin">Origen</string>
     <string name="character_location">Localidad</string>
     <string name="character_episodes">Episodios</string>
-    <string name="navigate_to_detail_location">Navegar a la pantalla detallada del la localidad</string>
     <string name="detail_character">Detalle del personaje</string>
+    <string name="navigate_to_detail_location">Navegar a la pantalla detallada del lugar</string>
+    <string name="navigate_to_detail_episode">Navegar a la pantalla detallada del episodio</string>
+
 
     <!--  Items episodes paging  -->
     <string name="episode_all">Todas</string>
@@ -54,6 +63,15 @@
     <!--  Episode  -->
     <string name="detail_episode">Detalle del episodio</string>
     <string name="episode_details">Detalles</string>
+
+    <!--  Items locations paging  -->
+    <string name="location_type">Tipo</string>
+    <string name="location_dimension">Dimension</string>
+
+    <!--  Location  -->
+    <string name="detail_location">Detalle del lugar</string>
+    <string name="location_characteristics">Caracteristicas</string>
+    <string name="location_residents">Residentes</string>
 
     <!--  Error and such  -->
     <string name="no_data">No se han obtenido datos del servidor</string>

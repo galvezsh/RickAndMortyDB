@@ -1,4 +1,4 @@
-package com.galvezsh.rickandmortydb.data.retrofitResponse
+package com.galvezsh.rickandmortydb.data.remote.model.infoResponse
 
 import com.google.gson.annotations.SerializedName
 

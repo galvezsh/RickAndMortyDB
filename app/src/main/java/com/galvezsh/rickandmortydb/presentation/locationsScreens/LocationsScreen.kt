@@ -1,4 +1,4 @@
-package com.galvezsh.rickandmortydb.presentation.episodesScreens
+package com.galvezsh.rickandmortydb.presentation.locationsScreens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -39,30 +39,31 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.galvezsh.rickandmortydb.R
-import com.galvezsh.rickandmortydb.domain.model.EpisodeModel
+import com.galvezsh.rickandmortydb.domain.model.LocationModel
+import com.galvezsh.rickandmortydb.presentation.NotImplementedYet
 import com.galvezsh.rickandmortydb.presentation.ShowBottomBox
 import com.galvezsh.rickandmortydb.presentation.ShowHeader
 import com.galvezsh.rickandmortydb.presentation.ShowPagingCases
 import com.galvezsh.rickandmortydb.presentation.ShowRowButton
 
 @Composable
-fun EpisodesScreen( navigateToDetailEpisode: (Int) -> Unit, viewModel: EpisodesViewModel = hiltViewModel() ) {
+fun LocationsScreen( navigateToDetailLocation: (Int) -> Unit, viewModel: LocationsViewModel = hiltViewModel() ) {
 
     val from by viewModel.from.collectAsState()
     val to by viewModel.to.collectAsState()
-    val episodes = viewModel.episodes.collectAsLazyPagingItems()
-    val episodesCount = episodes.itemCount
+    val locations = viewModel.locations.collectAsLazyPagingItems()
+    val locationsCount = locations.itemCount
     val searchQuery by viewModel.searchQuery.collectAsState()
     var visibilitySF by remember { mutableStateOf( false ) }
     var visibilityFF by remember { mutableStateOf( false ) }
 
-    LaunchedEffect( episodesCount ) { viewModel.onFromChanged( episodesCount ) }
+    LaunchedEffect( locationsCount ) { viewModel.onFromChanged( locationsCount ) }
 
     ShowHeader(
         from = from,
         to = to,
-        text = stringResource( R.string.episodes ).uppercase(),
-        placeholder = stringResource( R.string.search_episode ),
+        text = stringResource( R.string.locations ).uppercase(),
+        placeholder = stringResource( R.string.search_location ),
         onPressedSearch = { visibilitySF = !visibilitySF },
         onPressedFilter = { visibilityFF = !visibilityFF  },
         visibilitySF = visibilitySF,
@@ -70,29 +71,41 @@ fun EpisodesScreen( navigateToDetailEpisode: (Int) -> Unit, viewModel: EpisodesV
         onSearchFieldChanged = { viewModel.onSearchFieldChanged( it ) }
     ) {
         LazyColumn( modifier = Modifier.padding( horizontal = 20.dp ), contentPadding = PaddingValues( bottom = 16.dp ) ) {
-            items( episodesCount ) { index ->
-                episodes[ index ]?.let { episode ->
-                    ItemList( episode ) { navigateToDetailEpisode( it ) }
+            items( locationsCount ) { index ->
+                locations[ index ]?.let { location ->
+                    ItemList( location ) { navigateToDetailLocation( it ) }
                 }
             }
         }
-        ShowPagingCases( paging = episodes, pagingCount = episodesCount )
+        ShowPagingCases( paging = locations, pagingCount = locationsCount )
         FilterBox( viewModel = viewModel, visibility = visibilityFF )
     }
 }
 
 @Composable
-private fun FilterBox( viewModel: EpisodesViewModel, visibility: Boolean ) {
-    val selectedIndexSeason by viewModel.seasonIndex.collectAsState()
-    val seasonListText = listOf(
-        stringResource( R.string.episode_all ),
-        stringResource( R.string.episode_season ) + " 1",
-        stringResource( R.string.episode_season ) + " 2",
-        stringResource( R.string.episode_season ) + " 3",
-        stringResource( R.string.episode_season ) + " 4",
-        stringResource( R.string.episode_season ) + " 5",
+private fun FilterBox( viewModel: LocationsViewModel, visibility: Boolean ) {
+
+    val selectedIndexType by viewModel.selectedIndexType.collectAsState()
+    val typeListText = listOf(
+        stringResource( R.string.filterbox_character_all),
+        stringResource( R.string.filterbox_location_planet ),
+        stringResource( R.string.filterbox_location_dimension ),
+        stringResource( R.string.filterbox_location_dream ),
+        stringResource( R.string.filterbox_location_diegesis ),
+        stringResource( R.string.filterbox_location_microverse ),
+        stringResource( R.string.filterbox_location_space_station ),
+        stringResource( R.string.filterbox_character_unknown )
     )
-    val seasonListData = listOf( "", "s01", "s02", "s03", "s04", "s05" )
+    val typeListData = listOf(
+        "",
+        "planet",
+        "dimension",
+        "dream",
+        "diegesis",
+        "microverse",
+        "space station",
+        "unknown"
+    )
 
     ShowBottomBox( visibility = visibility ) {
         Column(
@@ -107,7 +120,7 @@ private fun FilterBox( viewModel: EpisodesViewModel, visibility: Boolean ) {
             )
 
             Text(
-                text = stringResource( R.string.character_gender ),
+                text = stringResource( R.string.location_type ),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSecondary,
@@ -115,14 +128,14 @@ private fun FilterBox( viewModel: EpisodesViewModel, visibility: Boolean ) {
             )
 
             FlowRow( modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy( 8.dp ) ) {
-                repeat( seasonListText.size ) { index ->
-                    val isSelected = ( index == selectedIndexSeason )
+                repeat( typeListText.size ) { index ->
+                    val isSelected = ( index == selectedIndexType )
 
                     ShowRowButton(
-                        textButton = seasonListText[ index ],
+                        textButton = typeListText[ index ],
                         isSelected = isSelected,
                         modifier = Modifier.weight( 1f ),
-                        onPressedButton = { viewModel.onSeasonFilterChanged( newSeason = seasonListData[ index ], newIndex = index ) }
+                        onPressedButton = { viewModel.onTypeFilterChanged( newType = typeListData[ index ], newIndex = index ) }
                     )
                 }
             }
@@ -131,8 +144,7 @@ private fun FilterBox( viewModel: EpisodesViewModel, visibility: Boolean ) {
 }
 
 @Composable
-private fun ItemList( episode: EpisodeModel, onPressedItemList: (Int) -> Unit ) {
-    val ( seasonNumber, episodeNumber ) = parseEpisodeCode( episode.episode ) ?: Pair( 0, 0 )
+private fun ItemList( location: LocationModel, onPressedItemList: (Int) -> Unit ) {
 
     Box( modifier = Modifier
         .padding( top = 16.dp )
@@ -141,12 +153,12 @@ private fun ItemList( episode: EpisodeModel, onPressedItemList: (Int) -> Unit ) 
         .height( 128.dp )
         .fillMaxWidth()
         .background( MaterialTheme.colorScheme.primary )
-        .clickable { onPressedItemList( episode.id ) }
+        .clickable { onPressedItemList( location.id ) }
     ) {
         Row( modifier = Modifier.padding( 10.dp ), verticalAlignment = Alignment.CenterVertically ) {
             Column( modifier = Modifier.fillMaxHeight().weight( 1f ), verticalArrangement = Arrangement.SpaceBetween ) {
                 Text(
-                    text = episode.name,
+                    text = location.name,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onPrimary
@@ -154,13 +166,13 @@ private fun ItemList( episode: EpisodeModel, onPressedItemList: (Int) -> Unit ) 
 
                 Row {
                     Text(
-                        text = stringResource( R.string.episode_season ) + ": ",
+                        text = stringResource( R.string.location_type ) + ": ",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSecondary
                     )
                     Text(
-                        text = "$seasonNumber",
+                        text = location.type,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         fontSize = 14.sp,
@@ -170,13 +182,13 @@ private fun ItemList( episode: EpisodeModel, onPressedItemList: (Int) -> Unit ) 
 
                 Row {
                     Text(
-                        text = stringResource( R.string.episode_episode ) + ": ",
+                        text = stringResource( R.string.location_dimension ) + ": ",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSecondary
                     )
                     Text(
-                        text = "$episodeNumber",
+                        text = location.dimension,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         fontSize = 14.sp,
@@ -187,18 +199,9 @@ private fun ItemList( episode: EpisodeModel, onPressedItemList: (Int) -> Unit ) 
 
             Icon(
                 imageVector = Icons.AutoMirrored.Default.ArrowForward,
-                contentDescription = stringResource( R.string.navigate_to_detail_episode ),
+                contentDescription = stringResource( R.string.navigate_to_detail_location ),
                 tint = MaterialTheme.colorScheme.onPrimary
             )
         }
-    }
-}
-
-private fun parseEpisodeCode( code: String ): Pair<Int, Int>? {
-    val regex = Regex("""S(\d{2})E(\d{2})""", RegexOption.IGNORE_CASE)
-    val matchResult = regex.find(code)
-
-    return matchResult?.destructured?.let { (season, episode) ->
-        Pair(season.toInt(), episode.toInt())
     }
 }

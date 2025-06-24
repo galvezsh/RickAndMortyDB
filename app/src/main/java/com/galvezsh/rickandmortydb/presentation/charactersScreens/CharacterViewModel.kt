@@ -66,7 +66,7 @@ class CharacterViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            getCountOfCharactersFlow().collect { _to.value = it }
+            getCountOfCharactersFlow().flowOn( Dispatchers.Default ).collect { _to.value = it }
         }
     }
 

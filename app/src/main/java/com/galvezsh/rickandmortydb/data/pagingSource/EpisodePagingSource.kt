@@ -2,10 +2,8 @@ package com.galvezsh.rickandmortydb.data.pagingSource
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.galvezsh.rickandmortydb.data.RetrofitApiService
-import com.galvezsh.rickandmortydb.data.retrofitResponse.characterResponse.CharacterResponse
-import com.galvezsh.rickandmortydb.data.retrofitResponse.episodeResponse.EpisodeResponse
-import com.galvezsh.rickandmortydb.domain.model.CharacterModel
+import com.galvezsh.rickandmortydb.data.remote.api.RetrofitApiService
+import com.galvezsh.rickandmortydb.data.remote.model.resultResponse.EpisodeResponse
 import com.galvezsh.rickandmortydb.domain.model.EpisodeModel
 import com.galvezsh.rickandmortydb.mappers.toDomain
 import okio.IOException

@@ -1,11 +1,13 @@
 package com.galvezsh.rickandmortydb.mappers
 
-import com.galvezsh.rickandmortydb.data.retrofitResponse.characterResponse.CharacterLocationResponse
-import com.galvezsh.rickandmortydb.data.retrofitResponse.characterResponse.CharacterResponse
-import com.galvezsh.rickandmortydb.data.retrofitResponse.episodeResponse.EpisodeResponse
+import com.galvezsh.rickandmortydb.data.remote.model.resultResponse.CharacterLocationResponse
+import com.galvezsh.rickandmortydb.data.remote.model.resultResponse.CharacterResponse
+import com.galvezsh.rickandmortydb.data.remote.model.resultResponse.EpisodeResponse
+import com.galvezsh.rickandmortydb.data.remote.model.resultResponse.LocationResponse
 import com.galvezsh.rickandmortydb.domain.model.CharacterLocationModel
 import com.galvezsh.rickandmortydb.domain.model.CharacterModel
 import com.galvezsh.rickandmortydb.domain.model.EpisodeModel
+import com.galvezsh.rickandmortydb.domain.model.LocationModel
 
 fun CharacterResponse.toDomain(): CharacterModel {
     return CharacterModel(
@@ -35,5 +37,15 @@ fun EpisodeResponse.toDomain(): EpisodeModel {
         name = this.name,
         episode = this.episode,
         characters = this.characters
+    )
+}
+
+fun LocationResponse.toDomain(): LocationModel {
+    return LocationModel(
+        id = this.id,
+        name = this.name,
+        type = this.type,
+        dimension = this.dimension,
+        residents = this.residents
     )
 }

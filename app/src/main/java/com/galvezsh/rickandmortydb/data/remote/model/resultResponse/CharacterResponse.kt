@@ -1,4 +1,4 @@
-package com.galvezsh.rickandmortydb.data.retrofitResponse.characterResponse
+package com.galvezsh.rickandmortydb.data.remote.model.resultResponse
 
 import com.google.gson.annotations.SerializedName
 
@@ -13,4 +13,4 @@ data class CharacterResponse(
     @SerializedName("location") val location: CharacterLocationResponse,
     @SerializedName("image") val image: String?,
     @SerializedName("episode") val episode: List<String>
-)
+): ResultResponse

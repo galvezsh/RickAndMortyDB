@@ -1,9 +1,9 @@
-package com.galvezsh.rickandmortydb.data
+package com.galvezsh.rickandmortydb.data.remote.api
 
-import com.galvezsh.rickandmortydb.data.retrofitResponse.characterResponse.CharacterResponse
-import com.galvezsh.rickandmortydb.data.retrofitResponse.characterResponse.CharacterResponseWrapper
-import com.galvezsh.rickandmortydb.data.retrofitResponse.episodeResponse.EpisodeResponse
-import com.galvezsh.rickandmortydb.data.retrofitResponse.episodeResponse.EpisodeResponseWrapper
+import com.galvezsh.rickandmortydb.data.remote.model.ResponseWrapper
+import com.galvezsh.rickandmortydb.data.remote.model.resultResponse.CharacterResponse
+import com.galvezsh.rickandmortydb.data.remote.model.resultResponse.EpisodeResponse
+import com.galvezsh.rickandmortydb.data.remote.model.resultResponse.LocationResponse
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -18,7 +18,7 @@ interface RetrofitApiService {
         @Query("name") name: String,
         @Query("gender") gender: String,
         @Query("status") status: String?
-    ): Response<CharacterResponseWrapper>
+    ): Response<ResponseWrapper<CharacterResponse>>
 
     @GET("/api/character/{id}")
     suspend fun getCharacterById(
@@ -30,10 +30,22 @@ interface RetrofitApiService {
         @Query("page") page: Int,
         @Query("name") name: String,
         @Query("episode") episode: String
-    ): Response<EpisodeResponseWrapper>
+    ): Response<ResponseWrapper<EpisodeResponse>>
 
     @GET("/api/episode/{id}")
     suspend fun getEpisodeById(
         @Path("id") id: Int
     ): Response<EpisodeResponse>
+
+    @GET("/api/location/")
+    suspend fun getLocations(
+        @Query("page") page: Int,
+        @Query("name") name: String,
+        @Query("type") type: String
+    ): Response<ResponseWrapper<LocationResponse>>
+
+    @GET("/api/location/{id}")
+    suspend fun getLocationById(
+        @Path("id") id: Int
+    ): Response<LocationResponse>
 }
