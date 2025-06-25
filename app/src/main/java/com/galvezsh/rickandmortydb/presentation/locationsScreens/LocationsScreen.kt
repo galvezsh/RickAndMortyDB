@@ -1,21 +1,15 @@
 package com.galvezsh.rickandmortydb.presentation.locationsScreens
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.Icon
@@ -30,7 +24,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -40,10 +33,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.galvezsh.rickandmortydb.R
 import com.galvezsh.rickandmortydb.domain.model.LocationModel
-import com.galvezsh.rickandmortydb.presentation.NotImplementedYet
-import com.galvezsh.rickandmortydb.presentation.ShowBottomBox
-import com.galvezsh.rickandmortydb.presentation.ShowHeader
+import com.galvezsh.rickandmortydb.presentation.ShowFooterBox
+import com.galvezsh.rickandmortydb.presentation.ShowFullHeader
 import com.galvezsh.rickandmortydb.presentation.ShowPagingCases
+import com.galvezsh.rickandmortydb.presentation.ShowPagingItemListBox
 import com.galvezsh.rickandmortydb.presentation.ShowRowButton
 
 @Composable
@@ -59,7 +52,7 @@ fun LocationsScreen( navigateToDetailLocation: (Int) -> Unit, viewModel: Locatio
 
     LaunchedEffect( locationsCount ) { viewModel.onFromChanged( locationsCount ) }
 
-    ShowHeader(
+    ShowFullHeader(
         from = from,
         to = to,
         text = stringResource( R.string.locations ).uppercase(),
@@ -73,7 +66,7 @@ fun LocationsScreen( navigateToDetailLocation: (Int) -> Unit, viewModel: Locatio
         LazyColumn( modifier = Modifier.padding( horizontal = 20.dp ), contentPadding = PaddingValues( bottom = 16.dp ) ) {
             items( locationsCount ) { index ->
                 locations[ index ]?.let { location ->
-                    ItemList( location ) { navigateToDetailLocation( it ) }
+                    PagingItemList( location ) { navigateToDetailLocation( it ) }
                 }
             }
         }
@@ -107,7 +100,7 @@ private fun FilterBox( viewModel: LocationsViewModel, visibility: Boolean ) {
         "unknown"
     )
 
-    ShowBottomBox( visibility = visibility ) {
+    ShowFooterBox( visibility = visibility ) {
         Column(
             modifier = Modifier.fillMaxWidth().wrapContentHeight().padding( 8.dp ),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -144,17 +137,14 @@ private fun FilterBox( viewModel: LocationsViewModel, visibility: Boolean ) {
 }
 
 @Composable
-private fun ItemList( location: LocationModel, onPressedItemList: (Int) -> Unit ) {
+private fun PagingItemList( location: LocationModel, onPressedItemList: (Int) -> Unit ) {
+    val listName = listOf(
+        stringResource( R.string.location_type ),
+        stringResource( R.string.location_dimension )
+    )
+    val listData = listOf( location.type, location.dimension )
 
-    Box( modifier = Modifier
-        .padding( top = 16.dp )
-        .clip( RoundedCornerShape( 12.dp ))
-        .border( 2.dp, MaterialTheme.colorScheme.surface, RoundedCornerShape( 12.dp ) )
-        .height( 128.dp )
-        .fillMaxWidth()
-        .background( MaterialTheme.colorScheme.primary )
-        .clickable { onPressedItemList( location.id ) }
-    ) {
+    ShowPagingItemListBox( onClick = { onPressedItemList( location.id ) } ) {
         Row( modifier = Modifier.padding( 10.dp ), verticalAlignment = Alignment.CenterVertically ) {
             Column( modifier = Modifier.fillMaxHeight().weight( 1f ), verticalArrangement = Arrangement.SpaceBetween ) {
                 Text(
@@ -164,36 +154,22 @@ private fun ItemList( location: LocationModel, onPressedItemList: (Int) -> Unit 
                     color = MaterialTheme.colorScheme.onPrimary
                 )
 
-                Row {
-                    Text(
-                        text = stringResource( R.string.location_type ) + ": ",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onSecondary
-                    )
-                    Text(
-                        text = location.type,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        fontSize = 14.sp,
-                        color = MaterialTheme.colorScheme.onSecondary
-                    )
-                }
-
-                Row {
-                    Text(
-                        text = stringResource( R.string.location_dimension ) + ": ",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onSecondary
-                    )
-                    Text(
-                        text = location.dimension,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        fontSize = 14.sp,
-                        color = MaterialTheme.colorScheme.onSecondary
-                    )
+                repeat( 2 ) { index ->
+                    Row {
+                        Text(
+                            text = listName[ index ] + ": ",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSecondary
+                        )
+                        Text(
+                            text = listData[ index ],
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            fontSize = 14.sp,
+                            color = MaterialTheme.colorScheme.onSecondary
+                        )
+                    }
                 }
             }
 

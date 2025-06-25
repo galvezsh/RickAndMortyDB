@@ -20,8 +20,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -45,6 +43,8 @@ import com.galvezsh.rickandmortydb.R
 import com.galvezsh.rickandmortydb.domain.model.CharacterModel
 import com.galvezsh.rickandmortydb.presentation.ShowDataListFromDetail
 import com.galvezsh.rickandmortydb.presentation.ShowErrorBox
+import com.galvezsh.rickandmortydb.presentation.ShowHeader
+import com.galvezsh.rickandmortydb.presentation.ShowLinearProgressBar
 import com.galvezsh.rickandmortydb.presentation.ShowSpacer
 import com.galvezsh.rickandmortydb.presentation.extractIdFromUrl
 import com.galvezsh.rickandmortydb.presentation.showToast
@@ -79,33 +79,6 @@ fun DetailCharacterScreen(
             }
         else
             ShowErrorBox( text = stringResource( R.string.no_internet ) )
-    }
-}
-
-@Composable
-private fun ShowHeader( text: String, content: @Composable () -> Unit ) {
-    Column( modifier = Modifier.fillMaxSize() ) {
-        Column(
-            modifier = Modifier.fillMaxWidth().padding( top = 14.dp ),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = text,
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp,
-                color = MaterialTheme.colorScheme.surface,
-            )
-
-            HorizontalDivider(
-                thickness = 2.dp,
-                color = MaterialTheme.colorScheme.surface,
-                modifier = Modifier.padding( top = 14.dp )
-            )
-        }
-
-        Box( modifier = Modifier.fillMaxSize() ) {
-            content()
-        }
     }
 }
 
@@ -265,7 +238,7 @@ private fun ShowEpisodeList(
     LaunchedEffect( character ) { viewModel.loadEpisodes( character.episodes ) }
 
     if ( episodeTexts.isEmpty() ) {
-        CircularProgressIndicator( color = MaterialTheme.colorScheme.surface )
+        ShowLinearProgressBar()
         ShowSpacer( 8.dp )
     } else {
         episodeTexts.forEachIndexed { index, text ->

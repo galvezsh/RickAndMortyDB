@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Rick y Morty BD</string>
-
+    <string name="loading">Cargando</string>
     <string name="not_implemented">No implementado aún</string>
 
     <!--  Bottom Navigation Bar and Titles -->

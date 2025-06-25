@@ -1,7 +1,5 @@
 package com.galvezsh.rickandmortydb.presentation
 
-import android.content.Context
-import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -16,6 +14,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -30,6 +29,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -51,38 +51,50 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import com.galvezsh.rickandmortydb.R
 
-// In this file are defined some composable functions that can be use in multiples screens, like in React,
-// because Jetpack Compose works using the same principle, building the interface using components. Thanks to
-// this principle, some functions can be recycled, making the code much faster and cleaner
+// In this file are defined some composable functions that can be use in multiples screens, like in
+// React, because Jetpack Compose works using the same principle, building the interface using
+// components. Thanks to this principle, some functions can be recycled, making the code much faster
+// and cleaner
 
-@Composable
-fun NotImplementedYet() {
-    Box( modifier = Modifier.fillMaxSize() ) {
-        Text(
-            text = stringResource( R.string.not_implemented ),
-            fontSize = 16.sp,
-            color = MaterialTheme.colorScheme.surface,
-            modifier = Modifier.align( Alignment.Center )
-        )
-    }
-}
-
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// GENERICS ////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
 @Composable
 fun ShowSpacer( dp: Dp ) {
     Spacer( modifier = Modifier.padding(dp) )
 }
 
-fun showToast( context: Context, text: String, isLengthShort: Boolean ) {
-    Toast.makeText( context, text, if ( isLengthShort ) Toast.LENGTH_SHORT else Toast.LENGTH_LONG ).show()
-}
-
 @Composable
 fun ShowCircularProgressBar() {
     Box( modifier = Modifier.fillMaxSize() ) {
-        CircularProgressIndicator( modifier = Modifier.align( Alignment.Center ), color = MaterialTheme.colorScheme.surface )
+        CircularProgressIndicator(
+            modifier = Modifier.align( Alignment.Center ),
+            color = MaterialTheme.colorScheme.surface
+        )
     }
 }
 
+@Composable
+fun ShowLinearProgressBar() {
+    Box( modifier = Modifier.fillMaxWidth().padding( bottom = 8.dp ) ) {
+        Column( horizontalAlignment = Alignment.CenterHorizontally ) {
+            Text(
+                text = stringResource( R.string.loading ),
+                modifier = Modifier.padding( bottom = 6.dp ),
+                color = MaterialTheme.colorScheme.onSecondary
+            )
+            LinearProgressIndicator(
+                modifier = Modifier.fillMaxWidth(),
+                color = MaterialTheme.colorScheme.surface,
+                trackColor = MaterialTheme.colorScheme.primary
+            )
+        }
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// PAGING CASES ////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
 @Composable
 fun<T: Any> ShowPagingCases( paging: LazyPagingItems<T>, pagingCount: Int ) {
     when {
@@ -105,8 +117,38 @@ fun<T: Any> ShowPagingCases( paging: LazyPagingItems<T>, pagingCount: Int ) {
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// HEADERS /////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
 @Composable
-fun ShowHeader(
+fun ShowHeader( text: String, content: @Composable () -> Unit ) {
+    Column( modifier = Modifier.fillMaxSize() ) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding( top = 14.dp ),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = text,
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp,
+                color = MaterialTheme.colorScheme.surface,
+            )
+
+            HorizontalDivider(
+                thickness = 2.dp,
+                color = MaterialTheme.colorScheme.surface,
+                modifier = Modifier.padding( top = 14.dp )
+            )
+        }
+
+        Box( modifier = Modifier.fillMaxSize() ) {
+            content()
+        }
+    }
+}
+
+@Composable
+fun ShowFullHeader(
     from: Int,
     to: Int,
     text: String,
@@ -189,7 +231,6 @@ fun ShowHeader(
     }
 }
 
-
 @Composable
 private fun ShowSearchField( text: String, placeholder: String, onTextChanged: (String) -> Unit ) {
     TextField(
@@ -217,8 +258,11 @@ private fun ShowSearchField( text: String, placeholder: String, onTextChanged: (
     )
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// FOOTER //////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
 @Composable
-fun ShowBottomBox( visibility: Boolean, content: @Composable () -> Unit ) {
+fun ShowFooterBox(visibility: Boolean, content: @Composable () -> Unit ) {
     Box( modifier = Modifier.fillMaxSize() ) {
         AnimatedVisibility(
             visible = visibility,
@@ -248,6 +292,25 @@ fun ShowRowButton( textButton: String, isSelected: Boolean, modifier: Modifier, 
     ) { Text( text = textButton ) }
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// LIST SCREEN /////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+@Composable
+fun ShowPagingItemListBox(onClick: () -> Unit, content: @Composable () -> Unit ) {
+    Box( modifier = Modifier
+        .padding( top = 16.dp )
+        .clip( RoundedCornerShape( 12.dp ))
+        .border( 2.dp, MaterialTheme.colorScheme.surface, RoundedCornerShape( 12.dp ) )
+        .height( 128.dp )
+        .fillMaxWidth()
+        .background( MaterialTheme.colorScheme.primary )
+        .clickable { onClick() }
+    ) { content() }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// DETAIL SCREEN ///////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
 @Composable
 fun ShowDataListFromDetail( text: String, modifier: Modifier, onPressedRowItem: () -> Unit  ) {
     Row(
@@ -270,6 +333,9 @@ fun ShowDataListFromDetail( text: String, modifier: Modifier, onPressedRowItem: 
     ShowSpacer(4.dp)
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// ERROR WARNINGS //////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
 @Composable
 fun ShowErrorBox( text: String ) {
     Box( modifier = Modifier.fillMaxSize().padding( horizontal = 20.dp ) ) {

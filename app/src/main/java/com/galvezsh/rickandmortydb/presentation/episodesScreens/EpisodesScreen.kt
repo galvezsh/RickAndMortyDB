@@ -1,21 +1,15 @@
 package com.galvezsh.rickandmortydb.presentation.episodesScreens
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.Icon
@@ -30,7 +24,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -40,10 +33,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.galvezsh.rickandmortydb.R
 import com.galvezsh.rickandmortydb.domain.model.EpisodeModel
-import com.galvezsh.rickandmortydb.presentation.ShowBottomBox
-import com.galvezsh.rickandmortydb.presentation.ShowHeader
+import com.galvezsh.rickandmortydb.presentation.ShowFooterBox
+import com.galvezsh.rickandmortydb.presentation.ShowFullHeader
 import com.galvezsh.rickandmortydb.presentation.ShowPagingCases
+import com.galvezsh.rickandmortydb.presentation.ShowPagingItemListBox
 import com.galvezsh.rickandmortydb.presentation.ShowRowButton
+import com.galvezsh.rickandmortydb.presentation.parseEpisodeCode
 
 @Composable
 fun EpisodesScreen( navigateToDetailEpisode: (Int) -> Unit, viewModel: EpisodesViewModel = hiltViewModel() ) {
@@ -58,7 +53,7 @@ fun EpisodesScreen( navigateToDetailEpisode: (Int) -> Unit, viewModel: EpisodesV
 
     LaunchedEffect( episodesCount ) { viewModel.onFromChanged( episodesCount ) }
 
-    ShowHeader(
+    ShowFullHeader(
         from = from,
         to = to,
         text = stringResource( R.string.episodes ).uppercase(),
@@ -72,7 +67,7 @@ fun EpisodesScreen( navigateToDetailEpisode: (Int) -> Unit, viewModel: EpisodesV
         LazyColumn( modifier = Modifier.padding( horizontal = 20.dp ), contentPadding = PaddingValues( bottom = 16.dp ) ) {
             items( episodesCount ) { index ->
                 episodes[ index ]?.let { episode ->
-                    ItemList( episode ) { navigateToDetailEpisode( it ) }
+                    PagingItemList( episode ) { navigateToDetailEpisode( it ) }
                 }
             }
         }
@@ -94,7 +89,7 @@ private fun FilterBox( viewModel: EpisodesViewModel, visibility: Boolean ) {
     )
     val seasonListData = listOf( "", "s01", "s02", "s03", "s04", "s05" )
 
-    ShowBottomBox( visibility = visibility ) {
+    ShowFooterBox( visibility = visibility ) {
         Column(
             modifier = Modifier.fillMaxWidth().wrapContentHeight().padding( 8.dp ),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -131,20 +126,20 @@ private fun FilterBox( viewModel: EpisodesViewModel, visibility: Boolean ) {
 }
 
 @Composable
-private fun ItemList( episode: EpisodeModel, onPressedItemList: (Int) -> Unit ) {
+private fun PagingItemList( episode: EpisodeModel, onPressedItemList: (Int) -> Unit ) {
     val ( seasonNumber, episodeNumber ) = parseEpisodeCode( episode.episode ) ?: Pair( 0, 0 )
+    val listName = listOf(
+        stringResource( R.string.episode_season ),
+        stringResource( R.string.episode_episode )
+    )
+    val listData = listOf( seasonNumber.toString(), episodeNumber.toString() )
 
-    Box( modifier = Modifier
-        .padding( top = 16.dp )
-        .clip( RoundedCornerShape( 12.dp ))
-        .border( 2.dp, MaterialTheme.colorScheme.surface, RoundedCornerShape( 12.dp ) )
-        .height( 128.dp )
-        .fillMaxWidth()
-        .background( MaterialTheme.colorScheme.primary )
-        .clickable { onPressedItemList( episode.id ) }
-    ) {
-        Row( modifier = Modifier.padding( 10.dp ), verticalAlignment = Alignment.CenterVertically ) {
-            Column( modifier = Modifier.fillMaxHeight().weight( 1f ), verticalArrangement = Arrangement.SpaceBetween ) {
+    ShowPagingItemListBox( onClick = { onPressedItemList( episode.id ) } ) {
+        Row( modifier = Modifier.padding( 10.dp ), verticalAlignment = Alignment.CenterVertically ){
+            Column(
+                modifier = Modifier.fillMaxHeight().weight( 1f ),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
                 Text(
                     text = episode.name,
                     fontSize = 18.sp,
@@ -152,36 +147,22 @@ private fun ItemList( episode: EpisodeModel, onPressedItemList: (Int) -> Unit ) 
                     color = MaterialTheme.colorScheme.onPrimary
                 )
 
-                Row {
-                    Text(
-                        text = stringResource( R.string.episode_season ) + ": ",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onSecondary
-                    )
-                    Text(
-                        text = "$seasonNumber",
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        fontSize = 14.sp,
-                        color = MaterialTheme.colorScheme.onSecondary
-                    )
-                }
-
-                Row {
-                    Text(
-                        text = stringResource( R.string.episode_episode ) + ": ",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onSecondary
-                    )
-                    Text(
-                        text = "$episodeNumber",
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        fontSize = 14.sp,
-                        color = MaterialTheme.colorScheme.onSecondary
-                    )
+                repeat( 2 ) { index ->
+                    Row {
+                        Text(
+                            text = listName[ index ] + ": ",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSecondary
+                        )
+                        Text(
+                            text = listData[ index ],
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            fontSize = 14.sp,
+                            color = MaterialTheme.colorScheme.onSecondary
+                        )
+                    }
                 }
             }
 
@@ -191,14 +172,5 @@ private fun ItemList( episode: EpisodeModel, onPressedItemList: (Int) -> Unit ) 
                 tint = MaterialTheme.colorScheme.onPrimary
             )
         }
-    }
-}
-
-private fun parseEpisodeCode( code: String ): Pair<Int, Int>? {
-    val regex = Regex("""S(\d{2})E(\d{2})""", RegexOption.IGNORE_CASE)
-    val matchResult = regex.find(code)
-
-    return matchResult?.destructured?.let { (season, episode) ->
-        Pair(season.toInt(), episode.toInt())
     }
 }

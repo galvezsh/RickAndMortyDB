@@ -1,25 +1,16 @@
 package com.galvezsh.rickandmortydb.presentation.episodesScreens
 
-import android.content.Context
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,8 +31,11 @@ import com.galvezsh.rickandmortydb.R
 import com.galvezsh.rickandmortydb.domain.model.EpisodeModel
 import com.galvezsh.rickandmortydb.presentation.ShowDataListFromDetail
 import com.galvezsh.rickandmortydb.presentation.ShowErrorBox
+import com.galvezsh.rickandmortydb.presentation.ShowHeader
+import com.galvezsh.rickandmortydb.presentation.ShowLinearProgressBar
 import com.galvezsh.rickandmortydb.presentation.ShowSpacer
 import com.galvezsh.rickandmortydb.presentation.extractIdFromUrl
+import com.galvezsh.rickandmortydb.presentation.parseEpisodeCode
 import com.galvezsh.rickandmortydb.presentation.showToast
 
 @Composable
@@ -70,36 +64,14 @@ fun DetailEpisodeScreen( navigateToDetailCharacter: (Int) -> Unit, viewModel: De
 }
 
 @Composable
-private fun ShowHeader( text: String, content: @Composable () -> Unit ) {
-    Column( modifier = Modifier.fillMaxSize() ) {
-        Column(
-            modifier = Modifier.fillMaxWidth().padding( top = 14.dp ),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = text,
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp,
-                color = MaterialTheme.colorScheme.surface,
-            )
-
-            HorizontalDivider(
-                thickness = 2.dp,
-                color = MaterialTheme.colorScheme.surface,
-                modifier = Modifier.padding( top = 14.dp )
-            )
-        }
-
-        Box( modifier = Modifier.fillMaxSize() ) {
-            content()
-        }
-    }
-}
-
-@Composable
 private fun ShowBody( episode: EpisodeModel, content: @Composable () -> Unit ) {
 
     val ( seasonNumber, episodeNumber ) = parseEpisodeCode( episode.episode ) ?: Pair( 0, 0 )
+    val listName = listOf(
+        stringResource( R.string.episode_season ),
+        stringResource( R.string.episode_episode )
+    )
+    val listData = listOf( seasonNumber.toString(), episodeNumber.toString() )
     val modifierRowItem = Modifier
         .clip( RoundedCornerShape( 4.dp ) )
         .background( MaterialTheme.colorScheme.primary )
@@ -128,40 +100,26 @@ private fun ShowBody( episode: EpisodeModel, content: @Composable () -> Unit ) {
                 color = MaterialTheme.colorScheme.onSecondary,
             )
             ShowSpacer( 8.dp )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy( 4.dp ),
-            ) {
-                Text(
-                    text = stringResource( R.string.episode_season ),
-                    color = MaterialTheme.colorScheme.onSecondary,
-                    modifier = modifierRowItem.weight( 0.6f ),
-                )
-                Text(
-                    text = "$seasonNumber",
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onSecondary,
-                    modifier = modifierRowItem.weight( 1f )
-                )
+            repeat( 2 ) { index ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy( 4.dp ),
+                ) {
+                    Text(
+                        text = listName[ index ],
+                        color = MaterialTheme.colorScheme.onSecondary,
+                        modifier = modifierRowItem.weight( 0.6f ),
+                    )
+                    Text(
+                        text = listData[ index ],
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onSecondary,
+                        modifier = modifierRowItem.weight( 1f )
+                    )
+                }
+                ShowSpacer( 4.dp )
             }
             ShowSpacer( 4.dp )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy( 4.dp ),
-            ) {
-                Text(
-                    text = stringResource( R.string.episode_episode ),
-                    color = MaterialTheme.colorScheme.onSecondary,
-                    modifier = modifierRowItem.weight( 0.6f ),
-                )
-                Text(
-                    text = "$episodeNumber",
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onSecondary,
-                    modifier = modifierRowItem.weight( 1f )
-                )
-            }
-            ShowSpacer( 8.dp )
             Text(
                 text = stringResource( R.string.characters ),
                 fontWeight = FontWeight.SemiBold,
@@ -169,7 +127,6 @@ private fun ShowBody( episode: EpisodeModel, content: @Composable () -> Unit ) {
                 color = MaterialTheme.colorScheme.onSecondary,
             )
             ShowSpacer( 8.dp )
-
             content()
         }
     }
@@ -187,7 +144,7 @@ fun ShowCharacterList( episode: EpisodeModel, viewModel: DetailEpisodeViewModel,
     LaunchedEffect( episode ) { viewModel.loadCharacters( episode.characters ) }
 
     if ( characterTexts.isEmpty() ) {
-        CircularProgressIndicator( color = MaterialTheme.colorScheme.surface )
+        ShowLinearProgressBar()
         ShowSpacer( 8.dp )
     } else {
         characterTexts.forEachIndexed { index, text ->
@@ -198,14 +155,5 @@ fun ShowCharacterList( episode: EpisodeModel, viewModel: DetailEpisodeViewModel,
             )
         }
         ShowSpacer(4.dp)
-    }
-}
-
-private fun parseEpisodeCode( code: String ): Pair<Int, Int>? {
-    val regex = Regex("""S(\d{2})E(\d{2})""", RegexOption.IGNORE_CASE)
-    val matchResult = regex.find(code)
-
-    return matchResult?.destructured?.let { (season, episode) ->
-        Pair(season.toInt(), episode.toInt())
     }
 }

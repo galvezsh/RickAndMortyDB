@@ -14,8 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,6 +34,8 @@ import com.galvezsh.rickandmortydb.R
 import com.galvezsh.rickandmortydb.domain.model.LocationModel
 import com.galvezsh.rickandmortydb.presentation.ShowDataListFromDetail
 import com.galvezsh.rickandmortydb.presentation.ShowErrorBox
+import com.galvezsh.rickandmortydb.presentation.ShowHeader
+import com.galvezsh.rickandmortydb.presentation.ShowLinearProgressBar
 import com.galvezsh.rickandmortydb.presentation.ShowSpacer
 import com.galvezsh.rickandmortydb.presentation.extractIdFromUrl
 import com.galvezsh.rickandmortydb.presentation.showToast
@@ -66,39 +66,17 @@ fun DetailLocationScreen( navigateToDetailCharacter: (Int) -> Unit, viewModel: D
 }
 
 @Composable
-private fun ShowHeader( text: String, content: @Composable () -> Unit ) {
-    Column( modifier = Modifier.fillMaxSize() ) {
-        Column(
-            modifier = Modifier.fillMaxWidth().padding( top = 14.dp ),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = text,
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp,
-                color = MaterialTheme.colorScheme.surface,
-            )
-
-            HorizontalDivider(
-                thickness = 2.dp,
-                color = MaterialTheme.colorScheme.surface,
-                modifier = Modifier.padding( top = 14.dp )
-            )
-        }
-
-        Box( modifier = Modifier.fillMaxSize() ) {
-            content()
-        }
-    }
-}
-
-@Composable
 private fun ShowBody( location: LocationModel, content: @Composable () -> Unit ) {
 
     val modifierRowItem = Modifier
         .clip( RoundedCornerShape( 4.dp ) )
         .background( MaterialTheme.colorScheme.primary )
         .padding( 8.dp )
+    val listName = listOf(
+        stringResource( R.string.location_type ),
+        stringResource( R.string.location_dimension )
+    )
+    val listData = listOf( location.type, location.dimension )
 
     Box( modifier = Modifier.fillMaxSize().padding( horizontal = 20.dp ) ) {
         Column(
@@ -123,40 +101,26 @@ private fun ShowBody( location: LocationModel, content: @Composable () -> Unit )
                 color = MaterialTheme.colorScheme.onSecondary,
             )
             ShowSpacer( 8.dp )
-            Row(
-                modifier = Modifier.fillMaxWidth().height( IntrinsicSize.Min ),
-                horizontalArrangement = Arrangement.spacedBy( 4.dp ),
-            ) {
-                Text(
-                    text = stringResource( R.string.location_type ),
-                    color = MaterialTheme.colorScheme.onSecondary,
-                    modifier = modifierRowItem.weight( 0.6f ).fillMaxHeight(),
-                )
-                Text(
-                    text = location.type,
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onSecondary,
-                    modifier = modifierRowItem.weight( 1f )
-                )
+            repeat( 2 ) { index ->
+                Row(
+                    modifier = Modifier.fillMaxWidth().height( IntrinsicSize.Min ),
+                    horizontalArrangement = Arrangement.spacedBy( 4.dp ),
+                ) {
+                    Text(
+                        text = listName[ index ],
+                        color = MaterialTheme.colorScheme.onSecondary,
+                        modifier = modifierRowItem.weight( 0.6f ).fillMaxHeight(),
+                    )
+                    Text(
+                        text = listData[ index ],
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onSecondary,
+                        modifier = modifierRowItem.weight( 1f )
+                    )
+                }
+                ShowSpacer( 4.dp )
             }
             ShowSpacer( 4.dp )
-            Row(
-                modifier = Modifier.fillMaxWidth().height( IntrinsicSize.Min ),
-                horizontalArrangement = Arrangement.spacedBy( 4.dp ),
-            ) {
-                Text(
-                    text = stringResource( R.string.location_dimension ),
-                    color = MaterialTheme.colorScheme.onSecondary,
-                    modifier = modifierRowItem.weight( 0.6f ).fillMaxHeight(),
-                )
-                Text(
-                    text = location.dimension,
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onSecondary,
-                    modifier = modifierRowItem.weight( 1f )
-                )
-            }
-            ShowSpacer( 8.dp )
             Text(
                 text = stringResource( R.string.location_residents ),
                 fontWeight = FontWeight.SemiBold,
@@ -164,7 +128,6 @@ private fun ShowBody( location: LocationModel, content: @Composable () -> Unit )
                 color = MaterialTheme.colorScheme.onSecondary,
             )
             ShowSpacer( 8.dp )
-
             content()
         }
     }
@@ -182,7 +145,7 @@ fun ShowCharacterList( location: LocationModel, viewModel: DetailLocationViewMod
     LaunchedEffect( location ) { viewModel.loadCharacters( location.residents ) }
 
     if ( characterTexts.isEmpty() ) {
-        CircularProgressIndicator( color = MaterialTheme.colorScheme.surface )
+        ShowLinearProgressBar()
         ShowSpacer( 8.dp )
     } else {
         characterTexts.forEachIndexed { index, text ->

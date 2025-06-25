@@ -1,17 +1,12 @@
 package com.galvezsh.rickandmortydb.presentation.charactersScreens
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
@@ -42,9 +37,10 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
 import com.galvezsh.rickandmortydb.R
 import com.galvezsh.rickandmortydb.domain.model.CharacterModel
-import com.galvezsh.rickandmortydb.presentation.ShowBottomBox
-import com.galvezsh.rickandmortydb.presentation.ShowHeader
+import com.galvezsh.rickandmortydb.presentation.ShowFooterBox
+import com.galvezsh.rickandmortydb.presentation.ShowFullHeader
 import com.galvezsh.rickandmortydb.presentation.ShowPagingCases
+import com.galvezsh.rickandmortydb.presentation.ShowPagingItemListBox
 import com.galvezsh.rickandmortydb.presentation.ShowRowButton
 import com.galvezsh.rickandmortydb.presentation.ShowSpacer
 
@@ -64,7 +60,7 @@ fun CharactersScreen( navigateToDetailCharacter: (Int) -> Unit, viewModel: Chara
     // parameter changes, optimizing the code since it avoids having to execute this code for
     // each recomposition of this screen.
     LaunchedEffect( numberOfCharacters ) { viewModel.onFromChanged( numberOfCharacters ) }
-    ShowHeader(
+    ShowFullHeader(
         from = from,
         to = to,
         text = stringResource( R.string.characters ).uppercase(),
@@ -80,7 +76,7 @@ fun CharactersScreen( navigateToDetailCharacter: (Int) -> Unit, viewModel: Chara
 
                 // Checking if the character in the index position is NOT null, for safety
                 characters[index]?.let { character ->
-                    ItemList( character ) { navigateToDetailCharacter( it ) }
+                    PagingItemList( character ) { navigateToDetailCharacter( it ) }
                 }
             }
         }
@@ -109,7 +105,7 @@ private fun FilterBox(viewModel: CharacterViewModel, visibility: Boolean ) {
     val genderListData = listOf<String>( "", "male", "female", "genderless", "unknown" )
     val statusListData = listOf<String>( "", "alive", "dead", "unknown" )
 
-    ShowBottomBox( visibility = visibility ) {
+    ShowFooterBox( visibility = visibility ) {
         Column(
             modifier = Modifier.fillMaxWidth().wrapContentHeight().padding( 8.dp ),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -170,17 +166,15 @@ private fun FilterBox(viewModel: CharacterViewModel, visibility: Boolean ) {
 }
 
 @Composable
-private fun ItemList( character: CharacterModel, onPressedItemList: (Int) -> Unit ) {
+private fun PagingItemList( character: CharacterModel, onPressedItemList: (Int) -> Unit ) {
+    val listName = listOf(
+        stringResource( R.string.character_species ),
+        stringResource( R.string.character_gender ),
+        stringResource( R.string.character_status )
+    )
+    val listData = listOf( character.species, character.gender, character.isAlive )
 
-    Box( modifier = Modifier
-        .padding( top = 16.dp )
-        .clip( RoundedCornerShape( 12.dp ))
-        .border( 2.dp, MaterialTheme.colorScheme.surface, RoundedCornerShape( 12.dp ) )
-        .height( 128.dp )
-        .fillMaxWidth()
-        .background( MaterialTheme.colorScheme.primary )
-        .clickable { onPressedItemList( character.id ) }
-    ) {
+    ShowPagingItemListBox( onClick = { onPressedItemList( character.id ) } ) {
         Row( modifier = Modifier.padding( 10.dp ), verticalAlignment = Alignment.CenterVertically ) {
             AsyncImage(
                 model = character.image,
@@ -199,52 +193,22 @@ private fun ItemList( character: CharacterModel, onPressedItemList: (Int) -> Uni
                     color = MaterialTheme.colorScheme.onPrimary
                 )
 
-                Row {
-                    Text(
-                        text = stringResource( R.string.character_species ) + ": ",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onSecondary
-                    )
-                    Text(
-                        text = character.species,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        fontSize = 14.sp,
-                        color = MaterialTheme.colorScheme.onSecondary
-                    )
-                }
-
-                Row {
-                    Text(
-                        text = stringResource( R.string.character_gender ) + ": ",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onSecondary
-                    )
-                    Text(
-                        text = character.gender,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        fontSize = 14.sp,
-                        color = MaterialTheme.colorScheme.onSecondary
-                    )
-                }
-
-                Row {
-                    Text(
-                        text = stringResource( R.string.character_status ) + ": ",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onSecondary
-                    )
-                    Text(
-                        text = character.isAlive,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        fontSize = 14.sp,
-                        color = MaterialTheme.colorScheme.onSecondary
-                    )
+                repeat( 3 ) { index ->
+                    Row {
+                        Text(
+                            text = listName[ index ] + ": ",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSecondary
+                        )
+                        Text(
+                            text = listData[ index ],
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            fontSize = 14.sp,
+                            color = MaterialTheme.colorScheme.onSecondary
+                        )
+                    }
                 }
             }
 
