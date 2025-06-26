@@ -1,4 +1,4 @@
-package com.galvezsh.rickandmortydb.core.navigation
+package com.galvezsh.rickandmortydb.presentation.navigation
 
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -19,7 +19,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination
@@ -54,62 +53,70 @@ fun NavigationWrapper() {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
-    Scaffold( bottomBar = { BottomNavigationBar( navController, currentDestination ) } ) { innerPadding ->
-        NavHost(
-            navController = navController,
-            startDestination = CharactersScreenSerial, // <- here is the first screen to render
-            modifier = Modifier.padding( innerPadding )
-        ) {
-            composable<CharactersScreenSerial> {
-                CharactersScreen( navigateToDetailCharacter = { id ->
-                    navController.navigate( DetailCharacterScreenSerial( id ) )
-                } )
-            }
+    NavHost(
+        navController = navController,
+        startDestination = CharactersScreenSerial, // <- here is the first screen to render
+    ) {
+        composable<CharactersScreenSerial> {
+            CharactersScreen(
+                navController = navController,
+                currentDestination = currentDestination,
+                navigateToDetailCharacter = { id ->
+                navController.navigate(DetailCharacterScreenSerial(id))
+            })
+        }
 
-            composable<DetailCharacterScreenSerial> {
-                DetailCharacterScreen( // The screen receives the characterId in the ViewModel directly
-                    navigateToDetailLocation = { id ->
-                        navController.navigate( DetailLocationScreenSerial( id ) )
-                    },
-                    navigateToDetailEpisode = { id ->
-                        navController.navigate( DetailEpisodeScreenSerial( id ) )
-                    }
-                )
-            }
+        composable<DetailCharacterScreenSerial> {
+            DetailCharacterScreen( // The screen receives the characterId in the ViewModel directly
+                navigateToDetailLocation = { id ->
+                    navController.navigate(DetailLocationScreenSerial(id))
+                },
+                navigateToDetailEpisode = { id ->
+                    navController.navigate(DetailEpisodeScreenSerial(id))
+                }
+            )
+        }
 
-            composable<EpisodesScreenSerial> {
-                EpisodesScreen( navigateToDetailEpisode = { id ->
-                    navController.navigate( DetailEpisodeScreenSerial( id ) )
-                } )
-            }
+        composable<EpisodesScreenSerial> {
+            EpisodesScreen(
+                navController = navController,
+                currentDestination = currentDestination,
+                navigateToDetailEpisode = { id ->
+                navController.navigate(DetailEpisodeScreenSerial(id))
+            })
+        }
 
-            composable<DetailEpisodeScreenSerial> {
-                DetailEpisodeScreen( // The screen receives the episodeId in the ViewModel directly
-                    navigateToDetailCharacter = { id ->
-                        navController.navigate( DetailCharacterScreenSerial( id ) )
-                    }
-                 )
-            }
+        composable<DetailEpisodeScreenSerial> {
+            DetailEpisodeScreen( // The screen receives the episodeId in the ViewModel directly
+                navigateToDetailCharacter = { id ->
+                    navController.navigate(DetailCharacterScreenSerial(id))
+                }
+            )
+        }
 
-            composable<LocationsScreenSerial> {
-                LocationsScreen(
-                    navigateToDetailLocation = { id ->
-                        navController.navigate( DetailLocationScreenSerial( id ) )
-                    }
-                )
-            }
+        composable<LocationsScreenSerial> {
+            LocationsScreen(
+                navController = navController,
+                currentDestination = currentDestination,
+                navigateToDetailLocation = { id ->
+                    navController.navigate(DetailLocationScreenSerial(id))
+                }
+            )
+        }
 
-            composable<DetailLocationScreenSerial> {
-                DetailLocationScreen(
-                    navigateToDetailCharacter = { id ->
-                        navController.navigate( DetailCharacterScreenSerial( id ) )
-                    }
-                )
-            }
+        composable<DetailLocationScreenSerial> {
+            DetailLocationScreen(
+                navigateToDetailCharacter = { id ->
+                    navController.navigate(DetailCharacterScreenSerial(id))
+                }
+            )
+        }
 
-            composable<SettingsScreenSerial> {
-                SettingsScreen()
-            }
+        composable<SettingsScreenSerial> {
+            SettingsScreen(
+                navController = navController,
+                currentDestination = currentDestination
+            )
         }
     }
 }
@@ -122,16 +129,16 @@ fun NavigationWrapper() {
  * @param currentDestination The current position when the app starts
  */
 @Composable
-fun BottomNavigationBar( navController: NavHostController, currentDestination: NavDestination? ) {
+fun BottomNavigationBar( navController: NavHostController, currentDestination: NavDestination?) {
 
     val borderColor = MaterialTheme.colorScheme.surface
     // This is the list of the routes for the physical buttons in the bar when i describes the icon for the button,
     // the bottom text of the button and the route that takes when the user press this button
     val navigationBottomRoutes = listOf(
-        NavigationBottomRoute( Icons.Rounded.Person , stringResource( R.string.characters ), CharactersScreenSerial ),
-        NavigationBottomRoute( Icons.Rounded.FormatListNumbered , stringResource( R.string.episodes ), EpisodesScreenSerial ),
-        NavigationBottomRoute( Icons.Rounded.Place , stringResource( R.string.locations ), LocationsScreenSerial ),
-        NavigationBottomRoute( Icons.Rounded.Settings , stringResource( R.string.settings ), SettingsScreenSerial )
+        NavigationBottomRoute(Icons.Rounded.Person, stringResource(R.string.characters), CharactersScreenSerial),
+        NavigationBottomRoute(Icons.Rounded.FormatListNumbered, stringResource(R.string.episodes), EpisodesScreenSerial),
+        NavigationBottomRoute(Icons.Rounded.Place, stringResource(R.string.locations), LocationsScreenSerial),
+        NavigationBottomRoute(Icons.Rounded.Settings, stringResource(R.string.settings), SettingsScreenSerial)
     )
 
     NavigationBar(
@@ -148,19 +155,19 @@ fun BottomNavigationBar( navController: NavHostController, currentDestination: N
         // And this is where you go through the list to build each button
         navigationBottomRoutes.forEach { item ->
             NavigationBarItem(
-                icon = { Icon( item.icon, contentDescription = item.name ) },
-                label = { Text( item.name ) },
-                selected = currentDestination?.hierarchy?.any { it.hasRoute( item.route::class ) } == true,
+                icon = { Icon(item.icon, contentDescription = item.name) },
+                label = { Text(item.name) },
+                selected = currentDestination?.hierarchy?.any { it.hasRoute(item.route::class) } == true,
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = MaterialTheme.colorScheme.surfaceVariant,
                     unselectedIconColor = MaterialTheme.colorScheme.surface,
                     selectedTextColor = MaterialTheme.colorScheme.surfaceVariant,
                     unselectedTextColor = MaterialTheme.colorScheme.surface,
-                    indicatorColor = Color.Transparent
+                    indicatorColor = MaterialTheme.colorScheme.surfaceVariant.copy(0.2f)
                 ),
                 onClick = {
-                    navController.navigate( item.route ) {
-                        popUpTo( navController.graph.findStartDestination().id ) { saveState = true }
+                    navController.navigate(item.route) {
+                        popUpTo(navController.graph.findStartDestination().id) { saveState = true }
                         launchSingleTop = true
                         restoreState = true
                     }

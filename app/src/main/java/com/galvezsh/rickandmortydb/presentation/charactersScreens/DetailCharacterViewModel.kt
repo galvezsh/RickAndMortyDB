@@ -7,7 +7,7 @@ import com.galvezsh.rickandmortydb.domain.model.CharacterModel
 import com.galvezsh.rickandmortydb.domain.model.EpisodeModel
 import com.galvezsh.rickandmortydb.domain.useCases.GetCharacterByIdUseCase
 import com.galvezsh.rickandmortydb.domain.useCases.GetEpisodeByIdUseCase
-import com.galvezsh.rickandmortydb.presentation.extractIdFromUrl
+import com.galvezsh.rickandmortydb.presentation.shared.extractIdFromUrl
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow

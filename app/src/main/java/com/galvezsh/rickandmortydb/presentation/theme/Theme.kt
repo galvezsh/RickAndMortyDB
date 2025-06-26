@@ -1,4 +1,4 @@
-package com.galvezsh.rickandmortydb.core.ui
+package com.galvezsh.rickandmortydb.presentation.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme

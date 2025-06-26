@@ -5,7 +5,7 @@ import androidx.paging.PagingState
 import com.galvezsh.rickandmortydb.data.remote.api.RetrofitApiService
 import com.galvezsh.rickandmortydb.data.remote.model.resultResponse.CharacterResponse
 import com.galvezsh.rickandmortydb.domain.model.CharacterModel
-import com.galvezsh.rickandmortydb.mappers.toDomain
+import com.galvezsh.rickandmortydb.data.remote.model.toDomain
 import okio.IOException
 
 // This is a special class for handling the paging in LazyColumns, returning a constant flow data of CharacterModel

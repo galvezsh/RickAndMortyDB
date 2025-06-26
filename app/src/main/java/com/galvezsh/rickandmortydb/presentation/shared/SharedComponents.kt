@@ -1,4 +1,4 @@
-package com.galvezsh.rickandmortydb.presentation
+package com.galvezsh.rickandmortydb.presentation.shared
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -15,14 +15,20 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.rounded.FilterAlt
+import androidx.compose.material.icons.rounded.FormatListNumbered
+import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material.icons.rounded.Place
 import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -31,6 +37,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -39,6 +48,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -47,9 +58,19 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavDestination
+import androidx.navigation.NavDestination.Companion.hasRoute
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import com.galvezsh.rickandmortydb.R
+import com.galvezsh.rickandmortydb.presentation.navigation.CharactersScreenSerial
+import com.galvezsh.rickandmortydb.presentation.navigation.EpisodesScreenSerial
+import com.galvezsh.rickandmortydb.presentation.navigation.LocationsScreenSerial
+import com.galvezsh.rickandmortydb.presentation.navigation.NavigationBottomRoute
+import com.galvezsh.rickandmortydb.presentation.navigation.SettingsScreenSerial
 
 // In this file are defined some composable functions that can be use in multiples screens, like in
 // React, because Jetpack Compose works using the same principle, building the interface using
@@ -93,6 +114,58 @@ fun ShowLinearProgressBar() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// NAVIGATION //////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+@Composable
+fun AppBottomNavigationBar( navController: NavHostController, currentDestination: NavDestination?) {
+
+    val borderColor = MaterialTheme.colorScheme.surface
+    // This is the list of the routes for the physical buttons in the bar when i describes the icon for the button,
+    // the bottom text of the button and the route that takes when the user press this button
+    val navigationBottomRoutes = listOf(
+        NavigationBottomRoute(Icons.Rounded.Person, stringResource(R.string.characters), CharactersScreenSerial),
+        NavigationBottomRoute(Icons.Rounded.FormatListNumbered, stringResource(R.string.episodes), EpisodesScreenSerial),
+        NavigationBottomRoute(Icons.Rounded.Place, stringResource(R.string.locations), LocationsScreenSerial),
+        NavigationBottomRoute(Icons.Rounded.Settings, stringResource(R.string.settings), SettingsScreenSerial)
+    )
+
+    NavigationBar(
+        containerColor = MaterialTheme.colorScheme.background,
+        modifier = Modifier.drawBehind {
+            drawLine(
+                color = borderColor,
+                start = Offset(0f, 0f),
+                end = Offset(size.width, 0f),
+                strokeWidth = 5.dp.toPx()
+            )
+        }
+    ) {
+        // And this is where you go through the list to build each button
+        navigationBottomRoutes.forEach { item ->
+            NavigationBarItem(
+                icon = { Icon(item.icon, contentDescription = item.name) },
+                label = { Text(item.name) },
+                selected = currentDestination?.hierarchy?.any { it.hasRoute(item.route::class) } == true,
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = MaterialTheme.colorScheme.surfaceVariant,
+                    unselectedIconColor = MaterialTheme.colorScheme.surface,
+                    selectedTextColor = MaterialTheme.colorScheme.surfaceVariant,
+                    unselectedTextColor = MaterialTheme.colorScheme.surface,
+                    indicatorColor = MaterialTheme.colorScheme.surfaceVariant.copy(0.2f)
+                ),
+                onClick = {
+                    navController.navigate(item.route) {
+                        popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
+            )
+        }
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // PAGING CASES ////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 @Composable
@@ -121,34 +194,28 @@ fun<T: Any> ShowPagingCases( paging: LazyPagingItems<T>, pagingCount: Int ) {
 // HEADERS /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 @Composable
-fun ShowHeader( text: String, content: @Composable () -> Unit ) {
-    Column( modifier = Modifier.fillMaxSize() ) {
-        Column(
-            modifier = Modifier.fillMaxWidth().padding( top = 14.dp ),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = text,
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp,
-                color = MaterialTheme.colorScheme.surface,
-            )
+fun AppTopInfoBar( text: String ) {
+    Column(
+        modifier = Modifier.fillMaxWidth().statusBarsPadding(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = text,
+            fontWeight = FontWeight.Bold,
+            fontSize = 16.sp,
+            color = MaterialTheme.colorScheme.surface,
+        )
 
-            HorizontalDivider(
-                thickness = 2.dp,
-                color = MaterialTheme.colorScheme.surface,
-                modifier = Modifier.padding( top = 14.dp )
-            )
-        }
-
-        Box( modifier = Modifier.fillMaxSize() ) {
-            content()
-        }
+        HorizontalDivider(
+            thickness = 2.dp,
+            color = MaterialTheme.colorScheme.surface,
+            modifier = Modifier.padding( top = 14.dp )
+        )
     }
 }
 
 @Composable
-fun ShowFullHeader(
+fun AppTopInfoBarLarge(
     from: Int,
     to: Int,
     text: String,
@@ -157,77 +224,70 @@ fun ShowFullHeader(
     onPressedFilter: () -> Unit,
     visibilitySF: Boolean,
     searchQuery: String,
-    onSearchFieldChanged: (String) -> Unit,
-    content: @Composable () -> Unit
+    onSearchFieldChanged: (String) -> Unit
 ) {
-    Column( modifier = Modifier.fillMaxSize() ) {
-        Column( modifier = Modifier.fillMaxWidth().padding( top = 10.dp ) ) {
-            Box(modifier = Modifier.fillMaxWidth().padding( horizontal = 20.dp) ) {
-                Text(
-                    text = "$from " + stringResource( R.string.of ) + " $to",
-                    fontSize = 16.sp,
-                    color = MaterialTheme.colorScheme.surface,
-                    modifier = Modifier.align( Alignment.CenterStart )
-                )
+    Column( modifier = Modifier.fillMaxWidth().statusBarsPadding() ) {
+        Box(modifier = Modifier.fillMaxWidth().padding( horizontal = 20.dp) ) {
+            Text(
+                text = "$from " + stringResource( R.string.of ) + " $to",
+                fontSize = 16.sp,
+                color = MaterialTheme.colorScheme.surface,
+                modifier = Modifier.align( Alignment.CenterStart )
+            )
 
-                Text(
-                    text = text,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
-                    color = MaterialTheme.colorScheme.surface,
-                    modifier = Modifier.align( Alignment.Center )
-                )
+            Text(
+                text = text,
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp,
+                color = MaterialTheme.colorScheme.surface,
+                modifier = Modifier.align( Alignment.Center )
+            )
 
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.align( Alignment.CenterEnd )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.align( Alignment.CenterEnd )
+            ) {
+                IconButton(
+                    onClick = { onPressedSearch() },
+                    modifier = Modifier.size( 32.dp )
                 ) {
-                    IconButton(
-                        onClick = { onPressedSearch() },
-                        modifier = Modifier.size( 32.dp )
-                    ) {
-                        Icon(
-                            imageVector = Icons.Rounded.Search,
-                            contentDescription = stringResource( R.string.icon_search ),
-                            tint = MaterialTheme.colorScheme.surface
-                        )
-                    }
-                    ShowSpacer( 2.dp )
-                    IconButton(
-                        onClick = { onPressedFilter() },
-                        modifier = Modifier.size( 32.dp )
-                    ) {
-                        Icon(
-                            imageVector = Icons.Rounded.FilterAlt,
-                            contentDescription = stringResource( R.string.icon_filter ),
-                            tint = MaterialTheme.colorScheme.surface
-                        )
-                    }
+                    Icon(
+                        imageVector = Icons.Rounded.Search,
+                        contentDescription = stringResource( R.string.icon_search ),
+                        tint = MaterialTheme.colorScheme.surface
+                    )
+                }
+                ShowSpacer( 2.dp )
+                IconButton(
+                    onClick = { onPressedFilter() },
+                    modifier = Modifier.size( 32.dp )
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.FilterAlt,
+                        contentDescription = stringResource( R.string.icon_filter ),
+                        tint = MaterialTheme.colorScheme.surface
+                    )
                 }
             }
+        }
 
-            AnimatedVisibility(
-                visible = visibilitySF,
-                enter = slideInVertically( initialOffsetY = { -40 }) + fadeIn(),
-                exit = slideOutVertically( targetOffsetY = { -40 }) + fadeOut()
-            ) {
-                ShowSearchField(
-                    text = searchQuery,
-                    placeholder = placeholder,
-                    onTextChanged = { onSearchFieldChanged( it ) }
-                )
-            }
-
-            HorizontalDivider(
-                thickness = 2.dp,
-                color = MaterialTheme.colorScheme.surface,
-                modifier = Modifier.padding( top = 10.dp )
+        AnimatedVisibility(
+            visible = visibilitySF,
+            enter = slideInVertically( initialOffsetY = { -40 }) + fadeIn(),
+            exit = slideOutVertically( targetOffsetY = { -40 }) + fadeOut()
+        ) {
+            ShowSearchField(
+                text = searchQuery,
+                placeholder = placeholder,
+                onTextChanged = { onSearchFieldChanged( it ) }
             )
         }
 
-        Box( modifier = Modifier.fillMaxSize() ) {
-            content()
-        }
+        HorizontalDivider(
+            thickness = 2.dp,
+            color = MaterialTheme.colorScheme.surface,
+            modifier = Modifier.padding( top = 10.dp )
+        )
     }
 }
 

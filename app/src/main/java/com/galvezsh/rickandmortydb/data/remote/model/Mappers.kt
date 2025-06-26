@@ -1,4 +1,4 @@
-package com.galvezsh.rickandmortydb.mappers
+package com.galvezsh.rickandmortydb.data.remote.model
 
 import com.galvezsh.rickandmortydb.data.remote.model.resultResponse.CharacterLocationResponse
 import com.galvezsh.rickandmortydb.data.remote.model.resultResponse.CharacterResponse

@@ -1,4 +1,4 @@
-package com.galvezsh.rickandmortydb.presentation
+package com.galvezsh.rickandmortydb.presentation.shared
 
 import android.content.Context
 import android.widget.Toast

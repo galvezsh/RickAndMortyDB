@@ -15,6 +15,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -32,13 +33,13 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.galvezsh.rickandmortydb.R
 import com.galvezsh.rickandmortydb.domain.model.LocationModel
-import com.galvezsh.rickandmortydb.presentation.ShowDataListFromDetail
-import com.galvezsh.rickandmortydb.presentation.ShowErrorBox
-import com.galvezsh.rickandmortydb.presentation.ShowHeader
-import com.galvezsh.rickandmortydb.presentation.ShowLinearProgressBar
-import com.galvezsh.rickandmortydb.presentation.ShowSpacer
-import com.galvezsh.rickandmortydb.presentation.extractIdFromUrl
-import com.galvezsh.rickandmortydb.presentation.showToast
+import com.galvezsh.rickandmortydb.presentation.shared.ShowDataListFromDetail
+import com.galvezsh.rickandmortydb.presentation.shared.ShowErrorBox
+import com.galvezsh.rickandmortydb.presentation.shared.AppTopInfoBar
+import com.galvezsh.rickandmortydb.presentation.shared.ShowLinearProgressBar
+import com.galvezsh.rickandmortydb.presentation.shared.ShowSpacer
+import com.galvezsh.rickandmortydb.presentation.shared.extractIdFromUrl
+import com.galvezsh.rickandmortydb.presentation.shared.showToast
 
 @Composable
 fun DetailLocationScreen( navigateToDetailCharacter: (Int) -> Unit, viewModel: DetailLocationViewModel = hiltViewModel() ) {
@@ -47,20 +48,24 @@ fun DetailLocationScreen( navigateToDetailCharacter: (Int) -> Unit, viewModel: D
     val context = LocalContext.current
     val text = stringResource( R.string.url_not_valid )
 
-    ShowHeader( stringResource( R.string.detail_location ).uppercase() ) {
-        if ( location != null ) {
-            ShowBody( location = location!! ) {
-                ShowCharacterList(
-                    location = location!!,
-                    viewModel = viewModel,
-                    navigateToDetailCharacter = { id ->
-                        if (id != null) navigateToDetailCharacter( id )
-                        else showToast( context, text, true )
-                    }
-                )
+    Scaffold( topBar = {
+        AppTopInfoBar( stringResource( R.string.detail_location ).uppercase() )
+    } ) { innerPadding ->
+        Box( modifier = Modifier.padding( innerPadding ) ) {
+            if ( location != null ) {
+                ShowBody( location = location!! ) {
+                    ShowCharacterList(
+                        location = location!!,
+                        viewModel = viewModel,
+                        navigateToDetailCharacter = { id ->
+                            if (id != null) navigateToDetailCharacter( id )
+                            else showToast( context, text, true )
+                        }
+                    )
+                }
+            } else {
+                ShowErrorBox( text = stringResource( R.string.no_internet ) )
             }
-        } else {
-            ShowErrorBox( text = stringResource( R.string.no_internet ) )
         }
     }
 }

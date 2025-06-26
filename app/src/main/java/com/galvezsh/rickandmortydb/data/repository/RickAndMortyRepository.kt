@@ -11,7 +11,7 @@ import com.galvezsh.rickandmortydb.domain.model.CharacterModel
 import com.galvezsh.rickandmortydb.domain.model.EpisodeModel
 import com.galvezsh.rickandmortydb.domain.model.LocationModel
 import com.galvezsh.rickandmortydb.domain.repository.RickAndMortyRepositoryInterface
-import com.galvezsh.rickandmortydb.mappers.toDomain
+import com.galvezsh.rickandmortydb.data.remote.model.toDomain
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow

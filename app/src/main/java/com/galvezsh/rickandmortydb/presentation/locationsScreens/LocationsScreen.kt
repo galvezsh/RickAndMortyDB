@@ -1,6 +1,7 @@
 package com.galvezsh.rickandmortydb.presentation.locationsScreens
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
@@ -14,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -30,18 +32,28 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavDestination
+import androidx.navigation.NavHostController
+import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemContentType
+import androidx.paging.compose.itemKey
 import com.galvezsh.rickandmortydb.R
 import com.galvezsh.rickandmortydb.domain.model.LocationModel
-import com.galvezsh.rickandmortydb.presentation.ShowFooterBox
-import com.galvezsh.rickandmortydb.presentation.ShowFullHeader
-import com.galvezsh.rickandmortydb.presentation.ShowPagingCases
-import com.galvezsh.rickandmortydb.presentation.ShowPagingItemListBox
-import com.galvezsh.rickandmortydb.presentation.ShowRowButton
+import com.galvezsh.rickandmortydb.presentation.shared.AppBottomNavigationBar
+import com.galvezsh.rickandmortydb.presentation.shared.AppTopInfoBarLarge
+import com.galvezsh.rickandmortydb.presentation.shared.ShowFooterBox
+import com.galvezsh.rickandmortydb.presentation.shared.ShowPagingCases
+import com.galvezsh.rickandmortydb.presentation.shared.ShowPagingItemListBox
+import com.galvezsh.rickandmortydb.presentation.shared.ShowRowButton
 
 @Composable
-fun LocationsScreen( navigateToDetailLocation: (Int) -> Unit, viewModel: LocationsViewModel = hiltViewModel() ) {
-
+fun LocationsScreen(
+    navController: NavHostController,
+    currentDestination: NavDestination?,
+    navigateToDetailLocation: (Int) -> Unit,
+    viewModel: LocationsViewModel = hiltViewModel()
+) {
     val from by viewModel.from.collectAsState()
     val to by viewModel.to.collectAsState()
     val locations = viewModel.locations.collectAsLazyPagingItems()
@@ -51,28 +63,64 @@ fun LocationsScreen( navigateToDetailLocation: (Int) -> Unit, viewModel: Locatio
     var visibilityFF by remember { mutableStateOf( false ) }
 
     LaunchedEffect( locationsCount ) { viewModel.onFromChanged( locationsCount ) }
-
-    ShowFullHeader(
-        from = from,
-        to = to,
-        text = stringResource( R.string.locations ).uppercase(),
-        placeholder = stringResource( R.string.search_location ),
-        onPressedSearch = { visibilitySF = !visibilitySF },
-        onPressedFilter = { visibilityFF = !visibilityFF  },
-        visibilitySF = visibilitySF,
-        searchQuery = searchQuery,
-        onSearchFieldChanged = { viewModel.onSearchFieldChanged( it ) }
-    ) {
-        LazyColumn( modifier = Modifier.padding( horizontal = 20.dp ), contentPadding = PaddingValues( bottom = 16.dp ) ) {
-            items( locationsCount ) { index ->
-                locations[ index ]?.let { location ->
-                    PagingItemList( location ) { navigateToDetailLocation( it ) }
-                }
-            }
+    Scaffold(
+        topBar = {
+            AppTopInfoBarLarge(
+                from = from,
+                to = to,
+                text = stringResource( R.string.locations ).uppercase(),
+                placeholder = stringResource( R.string.search_location ),
+                onPressedSearch = { visibilitySF = !visibilitySF },
+                onPressedFilter = { visibilityFF = !visibilityFF  },
+                visibilitySF = visibilitySF,
+                searchQuery = searchQuery,
+                onSearchFieldChanged = { viewModel.onSearchFieldChanged( it ) }
+            )
+        },
+        bottomBar = {
+            AppBottomNavigationBar(
+                navController = navController,
+                currentDestination = currentDestination
+            )
         }
-        ShowPagingCases( paging = locations, pagingCount = locationsCount )
-        FilterBox( viewModel = viewModel, visibility = visibilityFF )
+    ) { innerPadding ->
+        Box( modifier = Modifier
+            .padding(innerPadding)
+            .fillMaxWidth() ) {
+            Body(
+                locationsCount = locationsCount,
+                locations = locations,
+                visibilityFF = visibilityFF,
+                viewModel = viewModel,
+                navigateToDetailLocation = { navigateToDetailLocation( it ) }
+            )
+        }
     }
+
+
+}
+
+@Composable
+private fun Body(
+    locationsCount: Int,
+    locations: LazyPagingItems<LocationModel>,
+    visibilityFF: Boolean,
+    viewModel: LocationsViewModel,
+    navigateToDetailLocation: (Int) -> Unit
+) {
+    LazyColumn( modifier = Modifier.padding( horizontal = 20.dp ), contentPadding = PaddingValues( bottom = 16.dp ) ) {
+        items(
+            count = locationsCount,
+            key = locations.itemKey { location -> location.id },
+            contentType = locations.itemContentType { "location" }
+        ) { index ->
+            val location = locations[ index ]
+            if ( location != null )
+                PagingItemList( location ) { navigateToDetailLocation( it ) }
+        }
+    }
+    ShowPagingCases( paging = locations, pagingCount = locationsCount )
+    FilterBox( viewModel = viewModel, visibility = visibilityFF )
 }
 
 @Composable
@@ -102,7 +150,10 @@ private fun FilterBox( viewModel: LocationsViewModel, visibility: Boolean ) {
 
     ShowFooterBox( visibility = visibility ) {
         Column(
-            modifier = Modifier.fillMaxWidth().wrapContentHeight().padding( 8.dp ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .padding(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
@@ -146,7 +197,9 @@ private fun PagingItemList( location: LocationModel, onPressedItemList: (Int) ->
 
     ShowPagingItemListBox( onClick = { onPressedItemList( location.id ) } ) {
         Row( modifier = Modifier.padding( 10.dp ), verticalAlignment = Alignment.CenterVertically ) {
-            Column( modifier = Modifier.fillMaxHeight().weight( 1f ), verticalArrangement = Arrangement.SpaceBetween ) {
+            Column( modifier = Modifier
+                .fillMaxHeight()
+                .weight(1f), verticalArrangement = Arrangement.SpaceBetween ) {
                 Text(
                     text = location.name,
                     fontSize = 18.sp,

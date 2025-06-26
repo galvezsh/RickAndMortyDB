@@ -7,7 +7,7 @@ import com.galvezsh.rickandmortydb.domain.model.CharacterModel
 import com.galvezsh.rickandmortydb.domain.model.LocationModel
 import com.galvezsh.rickandmortydb.domain.useCases.GetCharacterByIdUseCase
 import com.galvezsh.rickandmortydb.domain.useCases.GetLocationByIdUseCase
-import com.galvezsh.rickandmortydb.presentation.extractIdFromUrl
+import com.galvezsh.rickandmortydb.presentation.shared.extractIdFromUrl
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow

@@ -1,6 +1,7 @@
 package com.galvezsh.rickandmortydb.presentation.episodesScreens
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
@@ -14,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -30,19 +32,29 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavDestination
+import androidx.navigation.NavHostController
+import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemContentType
+import androidx.paging.compose.itemKey
 import com.galvezsh.rickandmortydb.R
 import com.galvezsh.rickandmortydb.domain.model.EpisodeModel
-import com.galvezsh.rickandmortydb.presentation.ShowFooterBox
-import com.galvezsh.rickandmortydb.presentation.ShowFullHeader
-import com.galvezsh.rickandmortydb.presentation.ShowPagingCases
-import com.galvezsh.rickandmortydb.presentation.ShowPagingItemListBox
-import com.galvezsh.rickandmortydb.presentation.ShowRowButton
-import com.galvezsh.rickandmortydb.presentation.parseEpisodeCode
+import com.galvezsh.rickandmortydb.presentation.shared.AppBottomNavigationBar
+import com.galvezsh.rickandmortydb.presentation.shared.AppTopInfoBarLarge
+import com.galvezsh.rickandmortydb.presentation.shared.ShowFooterBox
+import com.galvezsh.rickandmortydb.presentation.shared.ShowPagingCases
+import com.galvezsh.rickandmortydb.presentation.shared.ShowPagingItemListBox
+import com.galvezsh.rickandmortydb.presentation.shared.ShowRowButton
+import com.galvezsh.rickandmortydb.presentation.shared.parseEpisodeCode
 
 @Composable
-fun EpisodesScreen( navigateToDetailEpisode: (Int) -> Unit, viewModel: EpisodesViewModel = hiltViewModel() ) {
-
+fun EpisodesScreen(
+    navController: NavHostController,
+    currentDestination: NavDestination?,
+    navigateToDetailEpisode: (Int) -> Unit,
+    viewModel: EpisodesViewModel = hiltViewModel()
+) {
     val from by viewModel.from.collectAsState()
     val to by viewModel.to.collectAsState()
     val episodes = viewModel.episodes.collectAsLazyPagingItems()
@@ -52,28 +64,60 @@ fun EpisodesScreen( navigateToDetailEpisode: (Int) -> Unit, viewModel: EpisodesV
     var visibilityFF by remember { mutableStateOf( false ) }
 
     LaunchedEffect( episodesCount ) { viewModel.onFromChanged( episodesCount ) }
-
-    ShowFullHeader(
-        from = from,
-        to = to,
-        text = stringResource( R.string.episodes ).uppercase(),
-        placeholder = stringResource( R.string.search_episode ),
-        onPressedSearch = { visibilitySF = !visibilitySF },
-        onPressedFilter = { visibilityFF = !visibilityFF  },
-        visibilitySF = visibilitySF,
-        searchQuery = searchQuery,
-        onSearchFieldChanged = { viewModel.onSearchFieldChanged( it ) }
-    ) {
-        LazyColumn( modifier = Modifier.padding( horizontal = 20.dp ), contentPadding = PaddingValues( bottom = 16.dp ) ) {
-            items( episodesCount ) { index ->
-                episodes[ index ]?.let { episode ->
-                    PagingItemList( episode ) { navigateToDetailEpisode( it ) }
-                }
-            }
+    Scaffold(
+        topBar = {
+            AppTopInfoBarLarge(
+                from = from,
+                to = to,
+                text = stringResource( R.string.episodes ).uppercase(),
+                placeholder = stringResource( R.string.search_episode ),
+                onPressedSearch = { visibilitySF = !visibilitySF },
+                onPressedFilter = { visibilityFF = !visibilityFF  },
+                visibilitySF = visibilitySF,
+                searchQuery = searchQuery,
+                onSearchFieldChanged = { viewModel.onSearchFieldChanged( it ) }
+            )
+        },
+        bottomBar = {
+            AppBottomNavigationBar(
+                navController = navController,
+                currentDestination = currentDestination
+            )
         }
-        ShowPagingCases( paging = episodes, pagingCount = episodesCount )
-        FilterBox( viewModel = viewModel, visibility = visibilityFF )
+    ) { innerPadding ->
+        Box( modifier = Modifier.padding( innerPadding ).fillMaxWidth() ) {
+            Body(
+                episodesCount = episodesCount,
+                episodes = episodes,
+                visibilityFF = visibilityFF,
+                viewModel = viewModel,
+                navigateToDetailEpisode = { navigateToDetailEpisode( it ) }
+            )
+        }
     }
+}
+
+@Composable
+private fun Body (
+    episodesCount: Int,
+    episodes: LazyPagingItems<EpisodeModel>,
+    visibilityFF: Boolean,
+    viewModel: EpisodesViewModel,
+    navigateToDetailEpisode: (Int) -> Unit
+) {
+    LazyColumn( modifier = Modifier.padding( horizontal = 20.dp ), contentPadding = PaddingValues( bottom = 16.dp ) ) {
+        items(
+            count = episodesCount,
+            key = episodes.itemKey { episode -> episode.id },
+            contentType = episodes.itemContentType { "episode" }
+        ) { index ->
+            val episode = episodes[ index ]
+            if ( episode != null )
+                PagingItemList( episode ) { navigateToDetailEpisode( it ) }
+        }
+    }
+    ShowPagingCases( paging = episodes, pagingCount = episodesCount )
+    FilterBox( viewModel = viewModel, visibility = visibilityFF )
 }
 
 @Composable

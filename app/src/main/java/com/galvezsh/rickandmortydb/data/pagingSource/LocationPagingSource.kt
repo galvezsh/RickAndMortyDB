@@ -5,7 +5,7 @@ import androidx.paging.PagingState
 import com.galvezsh.rickandmortydb.data.remote.api.RetrofitApiService
 import com.galvezsh.rickandmortydb.data.remote.model.resultResponse.LocationResponse
 import com.galvezsh.rickandmortydb.domain.model.LocationModel
-import com.galvezsh.rickandmortydb.mappers.toDomain
+import com.galvezsh.rickandmortydb.data.remote.model.toDomain
 import okio.IOException
 
 class LocationPagingSource(

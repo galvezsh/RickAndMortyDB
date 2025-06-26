@@ -1,11 +1,13 @@
 package com.galvezsh.rickandmortydb.presentation.charactersScreens
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -15,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,81 +36,124 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavDestination
+import androidx.navigation.NavHostController
+import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemContentType
+import androidx.paging.compose.itemKey
 import coil.compose.AsyncImage
 import com.galvezsh.rickandmortydb.R
 import com.galvezsh.rickandmortydb.domain.model.CharacterModel
-import com.galvezsh.rickandmortydb.presentation.ShowFooterBox
-import com.galvezsh.rickandmortydb.presentation.ShowFullHeader
-import com.galvezsh.rickandmortydb.presentation.ShowPagingCases
-import com.galvezsh.rickandmortydb.presentation.ShowPagingItemListBox
-import com.galvezsh.rickandmortydb.presentation.ShowRowButton
-import com.galvezsh.rickandmortydb.presentation.ShowSpacer
+import com.galvezsh.rickandmortydb.presentation.shared.AppBottomNavigationBar
+import com.galvezsh.rickandmortydb.presentation.shared.AppTopInfoBarLarge
+import com.galvezsh.rickandmortydb.presentation.shared.ShowFooterBox
+import com.galvezsh.rickandmortydb.presentation.shared.ShowPagingCases
+import com.galvezsh.rickandmortydb.presentation.shared.ShowPagingItemListBox
+import com.galvezsh.rickandmortydb.presentation.shared.ShowRowButton
+import com.galvezsh.rickandmortydb.presentation.shared.ShowSpacer
 
 @Composable
-fun CharactersScreen( navigateToDetailCharacter: (Int) -> Unit, viewModel: CharacterViewModel = hiltViewModel() ) {
-
+fun CharactersScreen(
+    navController: NavHostController,
+    currentDestination: NavDestination?,
+    navigateToDetailCharacter: (Int) -> Unit,
+    viewModel: CharacterViewModel = hiltViewModel()
+) {
     val from by viewModel.from.collectAsState()
     val to by viewModel.to.collectAsState()
+    val characters = viewModel.characters.collectAsLazyPagingItems()
+    val charactersCount = characters.itemCount
     val searchQuery by viewModel.searchQuery.collectAsState()
     var visibilitySF by remember { mutableStateOf( false ) }
     var visibilityFF by remember { mutableStateOf( false ) }
 
-    val characters = viewModel.characters.collectAsLazyPagingItems()
-    val numberOfCharacters = characters.itemCount
-
     // With launchedEffect, the internal code will only be executed when the value passed as a
     // parameter changes, optimizing the code since it avoids having to execute this code for
     // each recomposition of this screen.
-    LaunchedEffect( numberOfCharacters ) { viewModel.onFromChanged( numberOfCharacters ) }
-    ShowFullHeader(
-        from = from,
-        to = to,
-        text = stringResource( R.string.characters ).uppercase(),
-        placeholder = stringResource( R.string.search_character ),
-        onPressedSearch = { visibilitySF = !visibilitySF },
-        onPressedFilter = { visibilityFF = !visibilityFF  },
-        visibilitySF = visibilitySF,
-        searchQuery = searchQuery,
-        onSearchFieldChanged = { viewModel.onSearchFieldChanged( it ) }
-    ) {
-        LazyColumn( modifier = Modifier.padding( horizontal = 20.dp ), contentPadding = PaddingValues( bottom = 16.dp ) ) {
-            items( numberOfCharacters ) { index ->
-
-                // Checking if the character in the index position is NOT null, for safety
-                characters[index]?.let { character ->
-                    PagingItemList( character ) { navigateToDetailCharacter( it ) }
-                }
-            }
+    LaunchedEffect( charactersCount ) { viewModel.onFromChanged( charactersCount ) }
+    Scaffold(
+        topBar = { AppTopInfoBarLarge(
+            from = from,
+            to = to,
+            text = stringResource( R.string.characters ).uppercase(),
+            placeholder = stringResource( R.string.search_character ),
+            onPressedSearch = { visibilitySF = !visibilitySF },
+            onPressedFilter = { visibilityFF = !visibilityFF  },
+            visibilitySF = visibilitySF,
+            searchQuery = searchQuery,
+            onSearchFieldChanged = { viewModel.onSearchFieldChanged( it ) }
+        ) },
+        bottomBar = {
+            AppBottomNavigationBar(
+                navController = navController,
+                currentDestination = currentDestination
+            )
         }
-        ShowPagingCases( paging = characters, pagingCount = numberOfCharacters )
-        FilterBox( viewModel = viewModel, visibility = visibilityFF )
+    ) { innerPadding ->
+        Box( modifier = Modifier
+            .padding(innerPadding)
+            .fillMaxSize() ) {
+            Body(
+                charactersCount = charactersCount,
+                characters = characters,
+                visibilityFF = visibilityFF,
+                viewModel = viewModel,
+                navigateToDetailCharacter = { navigateToDetailCharacter( it ) }
+            )
+        }
     }
 }
 
 @Composable
-private fun FilterBox(viewModel: CharacterViewModel, visibility: Boolean ) {
+private fun Body(
+    charactersCount: Int,
+    characters: LazyPagingItems<CharacterModel>,
+    visibilityFF: Boolean,
+    viewModel: CharacterViewModel,
+    navigateToDetailCharacter: (Int) -> Unit
+) {
+    LazyColumn( modifier = Modifier.padding( horizontal = 20.dp ), contentPadding = PaddingValues( bottom = 16.dp ) ) {
+        items(
+            count = charactersCount,
+            key = characters.itemKey { character -> character.id },
+            contentType = characters.itemContentType { "character" }
+        ) { index ->
+            val character = characters[ index ]
+            if ( character != null )
+                PagingItemList( character ) { navigateToDetailCharacter( it ) }
+        }
+    }
+    ShowPagingCases( paging = characters, pagingCount = charactersCount )
+    FilterBox( viewModel = viewModel, visibility = visibilityFF )
+}
+
+@Composable
+private fun FilterBox( viewModel: CharacterViewModel, visibility: Boolean ) {
     val selectedIndexGender by viewModel.genderIndex.collectAsState()
     val selectedIndexStatus by viewModel.statusIndex.collectAsState()
-    val genderListText = listOf<String>(
+    val genderListText = listOf(
         stringResource( R.string.filterbox_character_all ),
         stringResource( R.string.filterbox_character_male ),
         stringResource( R.string.filterbox_character_female ),
         stringResource( R.string.filterbox_character_genderless ),
         stringResource( R.string.filterbox_character_unknown )
     )
-    val statusListText = listOf<String>(
+    val statusListText = listOf(
         stringResource( R.string.filterbox_character_all ),
         stringResource( R.string.filterbox_character_alive ),
         stringResource( R.string.filterbox_character_dead ),
         stringResource( R.string.filterbox_character_unknown ),
     )
-    val genderListData = listOf<String>( "", "male", "female", "genderless", "unknown" )
-    val statusListData = listOf<String>( "", "alive", "dead", "unknown" )
+    val genderListData = listOf( "", "male", "female", "genderless", "unknown" )
+    val statusListData = listOf( "", "alive", "dead", "unknown" )
 
     ShowFooterBox( visibility = visibility ) {
         Column(
-            modifier = Modifier.fillMaxWidth().wrapContentHeight().padding( 8.dp ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .padding(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
@@ -183,7 +229,9 @@ private fun PagingItemList( character: CharacterModel, onPressedItemList: (Int) 
                 contentScale = ContentScale.Crop
             )
             ShowSpacer( 5.dp )
-            Column( modifier = Modifier.fillMaxHeight().weight( 1f ), verticalArrangement = Arrangement.SpaceBetween ) {
+            Column( modifier = Modifier
+                .fillMaxHeight()
+                .weight(1f), verticalArrangement = Arrangement.SpaceBetween ) {
                 Text(
                     text = character.name,
                     maxLines = 1,

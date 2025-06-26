@@ -1,4 +1,4 @@
-package com.galvezsh.rickandmortydb.core.navigation
+package com.galvezsh.rickandmortydb.presentation.navigation
 
 import androidx.compose.ui.graphics.vector.ImageVector
 import kotlinx.serialization.Serializable
