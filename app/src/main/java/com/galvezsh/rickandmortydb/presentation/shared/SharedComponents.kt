@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -28,7 +27,6 @@ import androidx.compose.material.icons.rounded.FormatListNumbered
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.Place
 import androidx.compose.material.icons.rounded.Search
-import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -70,7 +68,6 @@ import com.galvezsh.rickandmortydb.presentation.navigation.CharactersScreenSeria
 import com.galvezsh.rickandmortydb.presentation.navigation.EpisodesScreenSerial
 import com.galvezsh.rickandmortydb.presentation.navigation.LocationsScreenSerial
 import com.galvezsh.rickandmortydb.presentation.navigation.NavigationBottomRoute
-import com.galvezsh.rickandmortydb.presentation.navigation.SettingsScreenSerial
 
 // In this file are defined some composable functions that can be use in multiples screens, like in
 // React, because Jetpack Compose works using the same principle, building the interface using
@@ -116,8 +113,15 @@ fun ShowLinearProgressBar() {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // NAVIGATION //////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+/**
+ * This function build the bottom navigation bar with 4 buttons; characters, episodes, locations and settings,
+ * where each button navigate to is own screen
+ *
+ * @param navController The navigation controller that allows the navigation between screens
+ * @param currentDestination The current position when the app starts
+ */
 @Composable
-fun AppBottomNavigationBar( navController: NavHostController, currentDestination: NavDestination?) {
+fun AppBottomNavigationBar( navController: NavHostController, currentDestination: NavDestination? ) {
 
     val borderColor = MaterialTheme.colorScheme.surface
     // This is the list of the routes for the physical buttons in the bar when i describes the icon for the button,
@@ -126,7 +130,6 @@ fun AppBottomNavigationBar( navController: NavHostController, currentDestination
         NavigationBottomRoute(Icons.Rounded.Person, stringResource(R.string.characters), CharactersScreenSerial),
         NavigationBottomRoute(Icons.Rounded.FormatListNumbered, stringResource(R.string.episodes), EpisodesScreenSerial),
         NavigationBottomRoute(Icons.Rounded.Place, stringResource(R.string.locations), LocationsScreenSerial),
-        NavigationBottomRoute(Icons.Rounded.Settings, stringResource(R.string.settings), SettingsScreenSerial)
     )
 
     NavigationBar(
@@ -196,7 +199,7 @@ fun<T: Any> ShowPagingCases( paging: LazyPagingItems<T>, pagingCount: Int ) {
 @Composable
 fun AppTopInfoBar( text: String ) {
     Column(
-        modifier = Modifier.fillMaxWidth().statusBarsPadding(),
+        modifier = Modifier.fillMaxWidth().statusBarsPadding().padding( top = 4.dp ),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
@@ -349,7 +352,11 @@ fun ShowRowButton( textButton: String, isSelected: Boolean, modifier: Modifier, 
             contentColor = MaterialTheme.colorScheme.background
         )
 
-    ) { Text( text = textButton ) }
+    ) { Text(
+        text = textButton,
+        softWrap = false,
+        maxLines = 1
+    ) }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

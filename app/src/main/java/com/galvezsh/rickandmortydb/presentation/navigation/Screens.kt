@@ -23,8 +23,5 @@ object LocationsScreenSerial
 @Serializable
 data class DetailLocationScreenSerial( val locationId: Int )
 
-@Serializable
-object SettingsScreenSerial
-
 // And this describes the route for the list of buttons for the BottomNavigationBar
 data class NavigationBottomRoute<T : Any>( val icon: ImageVector, val name: String, val route: T )

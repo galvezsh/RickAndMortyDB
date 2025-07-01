@@ -124,7 +124,7 @@ private fun Body (
 private fun FilterBox( viewModel: EpisodesViewModel, visibility: Boolean ) {
     val selectedIndexSeason by viewModel.seasonIndex.collectAsState()
     val seasonListText = listOf(
-        stringResource( R.string.episode_all ),
+        stringResource( R.string.episode_all ) + "  ",
         stringResource( R.string.episode_season ) + " 1",
         stringResource( R.string.episode_season ) + " 2",
         stringResource( R.string.episode_season ) + " 3",
@@ -154,14 +154,15 @@ private fun FilterBox( viewModel: EpisodesViewModel, visibility: Boolean ) {
             )
 
             FlowRow( modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy( 8.dp ) ) {
-                repeat( seasonListText.size ) { index ->
+                seasonListText.forEachIndexed { index, textValue ->
                     val isSelected = ( index == selectedIndexSeason )
+                    val weightValue = textValue.length.toFloat().coerceAtLeast(1f)
 
                     ShowRowButton(
                         textButton = seasonListText[ index ],
                         isSelected = isSelected,
-                        modifier = Modifier.weight( 1f ),
-                        onPressedButton = { viewModel.onSeasonFilterChanged( newSeason = seasonListData[ index ], newIndex = index ) }
+                        modifier = Modifier.weight( weightValue ),
+                        onPressedButton = { viewModel.onSeasonFilterChanged( newSeason = seasonListData[ index ], index ) }
                     )
                 }
             }

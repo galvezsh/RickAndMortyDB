@@ -133,16 +133,16 @@ private fun FilterBox( viewModel: CharacterViewModel, visibility: Boolean ) {
     val selectedIndexGender by viewModel.genderIndex.collectAsState()
     val selectedIndexStatus by viewModel.statusIndex.collectAsState()
     val genderListText = listOf(
-        stringResource( R.string.filterbox_character_all ),
+        stringResource( R.string.filterbox_character_all ) + " ",
         stringResource( R.string.filterbox_character_male ),
         stringResource( R.string.filterbox_character_female ),
         stringResource( R.string.filterbox_character_genderless ),
         stringResource( R.string.filterbox_character_unknown )
     )
     val statusListText = listOf(
-        stringResource( R.string.filterbox_character_all ),
+        stringResource( R.string.filterbox_character_all ) + " ",
         stringResource( R.string.filterbox_character_alive ),
-        stringResource( R.string.filterbox_character_dead ),
+        stringResource( R.string.filterbox_character_dead ) + " ",
         stringResource( R.string.filterbox_character_unknown ),
     )
     val genderListData = listOf( "", "male", "female", "genderless", "unknown" )
@@ -173,13 +173,14 @@ private fun FilterBox( viewModel: CharacterViewModel, visibility: Boolean ) {
             )
 
             FlowRow( modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy( 8.dp ) ) {
-                repeat( genderListText.size ) { index ->
+                genderListText.forEachIndexed { index, textValue ->
                     val isSelected = ( index == selectedIndexGender )
+                    val weightValue = textValue.length.toFloat().coerceAtLeast(1f)
 
                     ShowRowButton(
                         textButton = genderListText[ index ],
                         isSelected = isSelected,
-                        modifier = Modifier.weight( 1f ),
+                        modifier = Modifier.weight( weightValue ),
                         onPressedButton = { viewModel.onGenderFilterChanged( newGender = genderListData[ index ], index ) }
                     )
                 }
@@ -196,13 +197,14 @@ private fun FilterBox( viewModel: CharacterViewModel, visibility: Boolean ) {
             )
 
             FlowRow( modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy( 8.dp ) ) {
-                repeat( statusListText.size ) { index ->
+                statusListText.forEachIndexed { index, textValue ->
                     val isSelected = ( index == selectedIndexStatus )
+                    val weightValue = textValue.length.toFloat().coerceAtLeast(1f)
 
                     ShowRowButton(
                         textButton = statusListText[ index ],
                         isSelected = isSelected,
-                        modifier = Modifier.weight( 1f ),
+                        modifier = Modifier.weight( weightValue ),
                         onPressedButton = { viewModel.onStatusFilterChanged( newStatus = statusListData[ index ], index ) }
                     )
                 }
