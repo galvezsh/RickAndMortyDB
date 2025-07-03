@@ -1,5 +1,5 @@
 
-# 📱 Rick and Morty App
+# 📱 Rick and Morty DB
 
 An Android application that explores the **Rick and Morty** universe, offering detailed information about **characters**, **episodes**, and **locations** from the series.
 
@@ -50,20 +50,19 @@ This project is under active development. It serves as a functional example of m
 
 ---
 
-## 🚀 Screenshots (optional)
+## 🚀 Screenshots
 
 <p align="center">
   <img src="screenshots/image_1.png" width="200" />
   <img src="screenshots/image_2.png" width="200" />
   <img src="screenshots/image_3.png" width="200" />
+  <img src="screenshots/image_4.png" width="200" />
 </p>
 <p align="center">
-  <img src="screenshots/image_4.png" width="200" />
   <img src="screenshots/image_5.png" width="200" />
   <img src="screenshots/image_6.png" width="200" />
-</p>
-<p align="center">
   <img src="screenshots/image_7.png" width="200" />
+  <img src="screenshots/image_8.png" width="200" />
 </p>
 
 ---
