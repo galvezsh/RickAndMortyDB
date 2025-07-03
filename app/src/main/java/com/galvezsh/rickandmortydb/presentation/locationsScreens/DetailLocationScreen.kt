@@ -141,6 +141,9 @@ private fun ShowBody( location: LocationModel, content: @Composable () -> Unit )
 @Composable
 fun ShowCharacterList( location: LocationModel, viewModel: DetailLocationViewModel, navigateToDetailCharacter: (Int?) -> Unit ) {
 
+    val context = LocalContext.current
+    val text = stringResource( R.string.no_data )
+    val textToast = stringResource( R.string.url_not_valid )
     val characterTexts by viewModel.characterTexts.collectAsState()
     val modifierRowItem = Modifier
         .clip( RoundedCornerShape( 4.dp ) )
@@ -149,7 +152,13 @@ fun ShowCharacterList( location: LocationModel, viewModel: DetailLocationViewMod
 
     LaunchedEffect( location ) { viewModel.loadCharacters( location.residents ) }
 
-    if ( characterTexts.isEmpty() ) {
+    if ( location.residents.isEmpty() && characterTexts.isEmpty() ) {
+        ShowDataListFromDetail(
+            text = text,
+            modifier = modifierRowItem,
+            onPressedRowItem = { showToast( context, textToast, true ) }
+        )
+    } else if ( location.residents.isNotEmpty() && characterTexts.isEmpty() ) {
         ShowLinearProgressBar()
         ShowSpacer( 8.dp )
     } else {

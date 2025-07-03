@@ -88,7 +88,6 @@ fun LocationsScreen(
             .padding(innerPadding)
             .fillMaxWidth() ) {
             Body(
-                locationsCount = locationsCount,
                 locations = locations,
                 visibilityFF = visibilityFF,
                 viewModel = viewModel,
@@ -102,7 +101,6 @@ fun LocationsScreen(
 
 @Composable
 private fun Body(
-    locationsCount: Int,
     locations: LazyPagingItems<LocationModel>,
     visibilityFF: Boolean,
     viewModel: LocationsViewModel,
@@ -110,7 +108,7 @@ private fun Body(
 ) {
     LazyColumn( modifier = Modifier.padding( horizontal = 20.dp ), contentPadding = PaddingValues( bottom = 16.dp ) ) {
         items(
-            count = locationsCount,
+            count = locations.itemCount,
             key = locations.itemKey { location -> location.id },
             contentType = locations.itemContentType { "location" }
         ) { index ->
@@ -119,7 +117,7 @@ private fun Body(
                 PagingItemList( location ) { navigateToDetailLocation( it ) }
         }
     }
-    ShowPagingCases( paging = locations, pagingCount = locationsCount )
+    ShowPagingCases( paging = locations, pagingCount = locations.itemCount )
     FilterBox( viewModel = viewModel, visibility = visibilityFF )
 }
 

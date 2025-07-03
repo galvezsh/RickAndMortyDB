@@ -87,7 +87,6 @@ fun EpisodesScreen(
     ) { innerPadding ->
         Box( modifier = Modifier.padding( innerPadding ).fillMaxWidth() ) {
             Body(
-                episodesCount = episodesCount,
                 episodes = episodes,
                 visibilityFF = visibilityFF,
                 viewModel = viewModel,
@@ -99,7 +98,6 @@ fun EpisodesScreen(
 
 @Composable
 private fun Body (
-    episodesCount: Int,
     episodes: LazyPagingItems<EpisodeModel>,
     visibilityFF: Boolean,
     viewModel: EpisodesViewModel,
@@ -107,7 +105,7 @@ private fun Body (
 ) {
     LazyColumn( modifier = Modifier.padding( horizontal = 20.dp ), contentPadding = PaddingValues( bottom = 16.dp ) ) {
         items(
-            count = episodesCount,
+            count = episodes.itemCount,
             key = episodes.itemKey { episode -> episode.id },
             contentType = episodes.itemContentType { "episode" }
         ) { index ->
@@ -116,7 +114,7 @@ private fun Body (
                 PagingItemList( episode ) { navigateToDetailEpisode( it ) }
         }
     }
-    ShowPagingCases( paging = episodes, pagingCount = episodesCount )
+    ShowPagingCases( paging = episodes, pagingCount = episodes.itemCount )
     FilterBox( viewModel = viewModel, visibility = visibilityFF )
 }
 

@@ -95,7 +95,6 @@ fun CharactersScreen(
             .padding(innerPadding)
             .fillMaxSize() ) {
             Body(
-                charactersCount = charactersCount,
                 characters = characters,
                 visibilityFF = visibilityFF,
                 viewModel = viewModel,
@@ -107,7 +106,6 @@ fun CharactersScreen(
 
 @Composable
 private fun Body(
-    charactersCount: Int,
     characters: LazyPagingItems<CharacterModel>,
     visibilityFF: Boolean,
     viewModel: CharacterViewModel,
@@ -115,7 +113,7 @@ private fun Body(
 ) {
     LazyColumn( modifier = Modifier.padding( horizontal = 20.dp ), contentPadding = PaddingValues( bottom = 16.dp ) ) {
         items(
-            count = charactersCount,
+            count = characters.itemCount,
             key = characters.itemKey { character -> character.id },
             contentType = characters.itemContentType { "character" }
         ) { index ->
@@ -124,7 +122,7 @@ private fun Body(
                 PagingItemList( character ) { navigateToDetailCharacter( it ) }
         }
     }
-    ShowPagingCases( paging = characters, pagingCount = charactersCount )
+    ShowPagingCases( paging = characters, pagingCount = characters.itemCount )
     FilterBox( viewModel = viewModel, visibility = visibilityFF )
 }
 
